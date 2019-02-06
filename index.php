@@ -41,7 +41,17 @@ $tasks = [
         'proect' => "Домашние дела",
         'done' => false
     ]
-]
+];
+//    Функция подсчета задач
+    function count_tasks($t,$p){
+    $count = 0;
+    foreach($t as $key => $item){
+        if ($item['proect']===$p){
+            $count++;
+        }
+    }
+    return $count;
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -93,7 +103,8 @@ $tasks = [
                             <a class="main-navigation__list-item-link" href="#">
                             <?php print($item); ?>
                             </a>
-                            <span class="main-navigation__list-item-count">0</span>
+<!--                        Подсчет задач в проекте    -->
+                            <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item)); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
