@@ -42,7 +42,7 @@ $tasks = [
         'done' => false
     ]
 ];
-//    Функция подсчета задач
+//    Функция подсчета   задач
     function count_tasks($t,$p){
     $count = 0;
     foreach($t as $key => $item){
