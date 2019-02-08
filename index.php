@@ -54,20 +54,12 @@ $tasks = [
     return $count;
 };
 
-//Подключаем функцию шаблонизации
+//Подключаем функции
 require_once('functions.php');
 
-//Функция фильтрации
-function esc($str) {
-	$text = htmlspecialchars($str);
-	//$text = strip_tags($str);
-	return $text;
-}
-
 //Шаблоны
-$page_content = include_template('index.php', ['tasks' => $tasks]);
+$page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
 $layout_content = include_template('layout.php',['content' => $page_content, 'projects' => $projects,'user_name'=>'Константин','title' => 'Дела в порядке', 'tasks' => $tasks]);
-
 print($layout_content);
 
 ?>

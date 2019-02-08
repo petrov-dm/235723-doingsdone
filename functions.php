@@ -1,4 +1,5 @@
 <?php 
+// Функция шаблонизации
     function include_template($name, $data) {
     $name = 'templates/' . $name;
     $result = '';
@@ -14,5 +15,12 @@
     $result = ob_get_clean();
 
     return $result;
+}
+
+//Функция фильтрации
+function esc($str) {
+	$text = htmlspecialchars($str);
+	//$text = strip_tags($str);
+	return $text;
 }
 ?>
