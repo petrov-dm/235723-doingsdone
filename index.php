@@ -7,7 +7,7 @@ $projects = ["Входящие","Учеба","Работа","Домашние д
 $tasks = [
     [
         'name' => "Собеседование в IT компании",
-        'date' => "01.12.2019",
+        'date' => "01.12.2019", 
         'proect' => "Работа",
         'done' => false
     ],
@@ -42,17 +42,6 @@ $tasks = [
         'done' => false
     ]
 ];
-
-//    Функция подсчета   задач
-    function count_tasks($t,$p){
-    $count = 0;
-    foreach($t as $key => $item){
-        if ($item['proect']===$p){
-            $count++;
-        }
-    }
-    return $count;
-};
 
 //Подключаем функции
 require_once('functions.php');
