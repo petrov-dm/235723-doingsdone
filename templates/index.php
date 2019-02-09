@@ -26,11 +26,13 @@
     <!--            Вывод списка задач-->
     <?php foreach($tasks as $key => $item): ?>
     <?php if(  !(($item['done']===true)&&($show_complete_tasks===0)) ): ?>
-    <tr class="tasks__item task <?php if ($item['done']===true): ?> task--completed <?php endif; ?>">
+<!--  Оповещение о необходимости выполнить задачу <= 24ч.  -->
+    <tr class="tasks__item task <?php if ($item['done']===true): ?> task--completed <?php endif; ?> <?php if ( date_task_exec($item['date'])=='make'): ?> task--important <?php  endif; ?>">
         <td class="task__select">
             <label class="checkbox task__checkbox">
                 <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
-                <span class="checkbox__text">
+<!--            Отмечаем просроченные задачи    -->
+                <span class="checkbox__text" <?php if ( date_task_exec($item['date'])=='overdue'): ?> style="color:red;" <?php  endif;   ?>>
                     <!-- Фильтрация названия задачи-->
                     <?php print(esc($item['name'])); ?></span>
             </label>
