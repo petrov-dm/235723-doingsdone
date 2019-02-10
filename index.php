@@ -1,9 +1,14 @@
 <?php
 // показывать или нет выполненные задачи
+
 $show_complete_tasks = rand(0, 1);
+
 //Массив проектов
+
 $projects = ["Входящие","Учеба","Работа","Домашние дела","Авто"];
+
 //Массив задач
+
 $tasks = [
     [
         'name' => "Собеседование в IT компании",
@@ -44,9 +49,11 @@ $tasks = [
 ];
 
 //Подключаем функции
+
 require_once('functions.php');
 
 //Шаблоны
+
 $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
 $layout_content = include_template('layout.php',['content' => $page_content, 'projects' => $projects,'user_name'=>'Константин','title' => 'Дела в порядке', 'tasks' => $tasks]);
 print($layout_content);
