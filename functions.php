@@ -60,7 +60,7 @@ function date_task_exec($d)
 
 	// У задачи нет даты
 
-	if ($task_date === false) {
+	if ((bool)$task_date === false) {
 		return $result;
 	}
 
