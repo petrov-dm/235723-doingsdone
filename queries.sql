@@ -1,3 +1,5 @@
+--  Выбираем БД
+USE things_fine;
 
 -- Заполняем таблицу users данными 2 пользователей
 
@@ -47,5 +49,17 @@ UPDATE `tasks` SET `user_id`= (SELECT id FROM users WHERE users.email='petr@mail
 INSERT INTO `tasks`(`date_created`, `done`, `name`) VALUES ('2018-06-01', 0, 'Заказать пиццу');
 UPDATE `tasks` SET `project_id`=(SELECT id FROM projects WHERE projects.name='Домашние дела') WHERE tasks.name='Заказать пиццу';
 UPDATE `tasks` SET `user_id`= (SELECT id FROM users WHERE users.email='petr@mail.ru') WHERE tasks.name='Заказать пиццу';         
-    
+     
+-- Получаем список проектов для одного пользователя
+SELECT users.name, projects.name FROM projects INNER JOIN users ON (projects.user_id = users.id) and (users.email='petr@mail.ru');
+
+-- Получаем список всех задач для одного проекта
+SELECT projects.name, tasks.name FROM tasks INNER JOIN projects ON (tasks.project_id = projects.id) and (projects.name = 'Работа');
+
+-- Помечаем задачу как выделенную 
+UPDATE tasks SET tasks.done = 1 WHERE (tasks.name = 'Выполнить тестовое задание') and (tasks.date_planned = '2019-12-25');
+
+-- Обновление названия задачи по индетификатору
+UPDATE tasks SET name = "Собеседование в IT-компании Microsoft" WHERE id = 1;
+
 
