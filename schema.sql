@@ -18,7 +18,6 @@ CREATE TABLE projects (
     user_id INT, 
     name CHAR(128) NOT NULL 
 );
-CREATE UNIQUE INDEX uindex_name ON projects(name);
 CREATE INDEX index_name ON projects(name);
 
 CREATE TABLE tasks (
@@ -37,4 +36,3 @@ CREATE TABLE tasks (
 CREATE INDEX index_user_id ON tasks(user_id);
 CREATE INDEX index_project_id ON tasks(project_id);
 CREATE INDEX index_name ON tasks(name);
-

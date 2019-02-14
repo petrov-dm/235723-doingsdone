@@ -1,18 +1,19 @@
 <?php
+
 // показывать или нет выполненные задачи
 
 $show_complete_tasks = rand(0, 1);
 
-//Массив проектов
+// Массив проектов
 
-$projects = ["Входящие","Учеба","Работа","Домашние дела","Авто"];
+//$projects = ["Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 
-//Массив задач
+// Массив задач
 
 $tasks = [
     [
         'name' => "Собеседование в IT компании",
-        'date' => "01.12.2019", 
+        'date' => "01.12.2019",
         'proect' => "Работа",
         'done' => false
     ],
@@ -48,14 +49,28 @@ $tasks = [
     ]
 ];
 
-//Подключаем функции
 
-require_once('functions.php');
+// Подключаем функции
 
-//Шаблоны
+require_once ('functions.php');
+
+// Подключаемся к базе данных
+
+$connect = mysqli_connect("localhost", "root", "", "things_fine");
+
+// Обращаемся к таблице users для извлечения имени пользователя  
+
+$user_name = connect_users($connect);
+
+// Обращаемся к таблице projects для получения списка проектов 
+
+$projects = connect_projects($connect);
+
+// Шаблоны
 
 $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
-$layout_content = include_template('layout.php',['content' => $page_content, 'projects' => $projects,'user_name'=>'Константин','title' => 'Дела в порядке', 'tasks' => $tasks]);
-print($layout_content);
+$layout_content = include_template('layout.php', ['content' => $page_content, 'projects' => $projects, 'user_name' => $user_name, 'title' => 'Дела в порядке', 'tasks' => $tasks]);
+print ($layout_content);
+
 
 ?>

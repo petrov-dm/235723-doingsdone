@@ -80,4 +80,99 @@ function date_task_exec($d)
 	return $result;
 }
 
+// Функции работы с БД
+// Подключение к таблице users
+
+function connect_users($con)
+{
+
+    
+    // Проверяем результат подключения
+
+    if ($con == false) {
+        print ("Ошибка подключения: " . mysqli_connect_error());
+    }
+    else {
+        print ("Соединение установлено");
+
+        // Устанавливаем кодировку
+
+        mysqli_set_charset($con, "utf8");
+
+        // ТАБЛИЦА USERS
+        // Получаем имя пользователя из таблицы users
+        // Формируем запрос
+
+        $sql = "SELECT name FROM users WHERE users.email = 'konst@mail.ru';";
+
+        // Получаем объект результата, проверяем успешность результатов запроса
+
+        $result = mysqli_query($con, $sql);
+        if ($result == false) {
+            $error = mysqli_error($con);
+            print ("Ошибка MySQL: " . $error);
+        }
+
+        // Преобразуем объект результата в массив
+
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        // Передаем имя из массива в переменную $user_name
+
+        return $rows[0]['name'];
+    }
+}
+
+// Подключение к таблице proejcts
+
+function connect_projects($con)
+{
+
+    // Проверяем результат подключения
+
+    if ($con == false) {
+        print ("Ошибка подключения: " . mysqli_connect_error());
+    }
+    else {
+        print ("Соединение установлено");
+
+        // Устанавливаем кодировку
+
+        mysqli_set_charset($con, "utf8");
+
+        // Таблица projects: формируем запрос на получение списка проектов 
+
+        $sql = "SELECT name FROM projects GROUP BY name;";
+
+        // Получаем объект результата, проверяем успешность результатов запроса
+
+        $result = mysqli_query($con, $sql);
+        if ($result == false) {
+            $error = mysqli_error($con);
+            print ("Ошибка MySQL: " . $error);
+        }
+
+        // Преобразуем объект результата в массив
+
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        
+        // Заполняем одномерный массив с названиями проектов
+        
+        $tmp =[];
+        foreach($rows as $key => $item){
+            foreach($item as $name_pr){
+                array_push($tmp,$name_pr);
+            }
+        }
+        
+        // Возвращаем список проектов
+        
+        return $tmp;
+    }
+}
+
+
+
+
+
 ?>
