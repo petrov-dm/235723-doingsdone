@@ -5,7 +5,7 @@ USE things_fine;
 
 CREATE TABLE users(
     id INT AUTO_INCREMENT PRIMARY KEY, 
-    date_reg DATE,
+    date_reg TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Редакция 15.02.2019 11:33
     email CHAR(255) NOT NULL,
     name CHAR(128),
     pwd VARCHAR(255)  NOT NULL 
@@ -16,7 +16,8 @@ CREATE UNIQUE INDEX uindex_pwd ON users(pwd);
 CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY, 
     user_id INT, 
-    name CHAR(128) NOT NULL 
+    name CHAR(128) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)  -- Внешний ключ для добавления связи с таблицей users
 );
 CREATE INDEX index_name ON projects(name);
 
