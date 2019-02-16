@@ -1,18 +1,37 @@
 <?php
+
 // показывать или нет выполненные задачи
 
 $show_complete_tasks = rand(0, 1);
 
-//Массив проектов
+// Массивы для работы с БД:
+// с таблицей users
 
-$projects = ["Входящие","Учеба","Работа","Домашние дела","Авто"];
+$user_name = [];
 
-//Массив задач
+// с таблицей projects
+
+$projects = [];
+
+// с таблицей tasks
+
+$tasks = [];
+
+// Переменная для получения e-mail пользователя из формы
+
+$us_eml_form = "";
+
+/*
+// Массив проектов
+
+//$projects = ["Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
+
+// Массив задач
 
 $tasks = [
     [
         'name' => "Собеседование в IT компании",
-        'date' => "01.12.2019", 
+        'date' => "01.12.2019",
         'proect' => "Работа",
         'done' => false
     ],
@@ -48,14 +67,42 @@ $tasks = [
     ]
 ];
 
-//Подключаем функции
+*/
+
+// Подключаем функции
 
 require_once('functions.php');
 
-//Шаблоны
+// Получаем e-mail пользователя из формы. Используем функцию фильтрации esc().
+
+$us_eml_form = esc("ivan@mail.ru");
+
+// Подключаемся к базе данных
+
+$connect = mysqli_connect("localhost", "root", "", "things_fine");
+
+// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $us_eml_form используется для поиска в таблице БД.   
+
+$user_name = connect_users($connect, $us_eml_form);
+
+// Обращаемся к таблице projects для получения списка проектов 
+
+$projects = connect_projects($connect, $user_name['email']);
+
+// Обращаемся к таблице tasks для получения списка задач текущего пользователя 
+
+$tasks = connect_tasks($connect, $user_name['email']);
+
+// Шаблоны
 
 $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
-$layout_content = include_template('layout.php',['content' => $page_content, 'projects' => $projects,'user_name'=>'Константин','title' => 'Дела в порядке', 'tasks' => $tasks]);
-print($layout_content);
+$layout_content = include_template('layout.php', [
+    'content' => $page_content,
+    'projects' => $projects,
+    'user_name' => $user_name['name'],
+    'title' => 'Дела в порядке',
+    'tasks' => $tasks
+]);
+print ($layout_content);
 
 ?>
