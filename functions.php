@@ -90,16 +90,15 @@ function date_task_exec($d)
 }
 
 // Функции работы с БД
-// Подключение к таблице users. Параметр $us_eml - адрес эл. почты пользователя, полученный из формы
+// Подключение к таблице users. Параметр $email - адрес эл. почты пользователя, полученный из формы
 
-function connect_users($con, $us_eml)
+function getUsers($con, $email)
 {
     // Проверяем результат подключения
 
     if ($con == false) {
         print ("Ошибка подключения: " . mysqli_connect_error());
     } else {
-        print ("Соединение установлено");
 
         // Устанавливаем кодировку
 
@@ -108,7 +107,7 @@ function connect_users($con, $us_eml)
         // ТАБЛИЦА USERS
         // Если введенный из формы e-mail есть в базе - получаем имя пользователя и e-mail из таблицы БД. Далее используем их для получения информации из таблиц users, tasks
 
-        $sql = "SELECT name, email FROM users WHERE users.email = '" . trim($us_eml) . "';";
+        $sql = "SELECT name, email FROM users WHERE users.email = '" . trim($email) . "';";
 
         // Получаем объект результата, проверяем успешность результатов запроса
 
@@ -128,9 +127,9 @@ function connect_users($con, $us_eml)
     }
 }
 
-// Подключение к таблице proejcts. Параметр $us_eml_found - эл. почта пользователя, полученная из таблицы users БД
+// Подключение к таблице proejcts. Параметр $email - эл. почта пользователя, полученная из таблицы users БД
 
-function connect_projects($con, $us_eml_found)
+function getProjects($con, $email)
 {
 
     // Проверяем результат подключения
@@ -138,15 +137,14 @@ function connect_projects($con, $us_eml_found)
     if ($con == false) {
         print ("Ошибка подключения: " . mysqli_connect_error());
     } else {
-        print ("Соединение установлено");
 
         // Устанавливаем кодировку
 
         mysqli_set_charset($con, "utf8");
 
-        // Таблица projects: формируем запрос на получение списка проектов по e-mail пользователя выбранного из таблицы users
+        // Таблица projects: формируем запрос на получение списка проектов по e-mail пользователя выбранного из таблицы users 
 
-        $sql = "SELECT name FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($us_eml_found) . "') GROUP BY name ;";
+        $sql = "SELECT name FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') GROUP BY name ;";
 
         // Получаем объект результата, проверяем успешность результатов запроса
 
@@ -160,44 +158,46 @@ function connect_projects($con, $us_eml_found)
 
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-        // Заполняем одномерный массив с названиями проектов
-
-        $tmp = [];
-        foreach ($rows as $key => $item) {
-            foreach ($item as $key2 => $item2) {
-                array_push($tmp, $item2);
-            }
-        }
-
         // Возвращаем список проектов
 
-        return $tmp;
+        return $rows;
 
     }
 }
 
-// Подключение к таблице tasks. Параметр $us_eml_found - эл. почта пользователя, полученная из таблицы users БД
+// Подключение к таблице tasks. Параметр $email - эл. почта пользователя, полученная из таблицы users БД
 
-function connect_tasks($con, $us_eml_found)
+function getTasks($con, $email)
 {
     // Проверяем результат подключения
 
     if ($con == false) {
         print ("Ошибка подключения: " . mysqli_connect_error());
     } else {
-        print ("Соединение установлено");
 
         // Устанавливаем кодировку
 
         mysqli_set_charset($con, "utf8");
 
-        // Таблица tasks: формируем запрос на получение списка задач по e-mail пользователя, выбранного из таблицы users 
+        // Таблица tasks: формируем запрос на получение списка задач по e-mail пользователя, выбранного из таблицы users
+        // Проверяем значение параметра запроса при нажатии на ссылку с названием проекта. Если параметр существует вывод задач только данного проекта
 
-        $sql = "SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($us_eml_found) . "') WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($us_eml_found) . "') AND projects.id = tasks.project_id;";
+        if (isset($_GET['proj_name'])) {
+
+            // Запрос для вывода задач по одному выбранному проекту пользователя
+
+            $sql = "SELECT * from (SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') and (projects.id = tasks.project_id)) AS tab_one_project WHERE project = '" . trim($_GET['proj_name']) . "'";
+
+            // Запрос для вывода задач по всем проектам пользователя
+
+        } else {
+            $sql = "SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') AND projects.id = tasks.project_id;";
+        }
 
         // Получаем объект результата, проверяем успешность результатов запроса
 
         $result = mysqli_query($con, $sql);
+
         if ($result == false) {
             $error = mysqli_error($con);
             print ("Ошибка MySQL: " . $error);
@@ -206,6 +206,12 @@ function connect_tasks($con, $us_eml_found)
         // Преобразуем объект результата в массив 
 
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        // Возвращаем код ответа 404 вместо содержимого страницы, если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи.
+
+        if (empty($rows)) {
+            http_response_code(404);
+        }
 
         // Возвращаем массив задач
 
