@@ -19,7 +19,7 @@ $tasks = [];
 
 // Переменная для получения e-mail пользователя из формы
 
-$us_eml_form = "";
+$email_form = "";
 
 /*
 // Массив проектов
@@ -75,23 +75,23 @@ require_once('functions.php');
 
 // Получаем e-mail пользователя из формы. Используем функцию фильтрации esc().
 
-$us_eml_form = esc("ivan@mail.ru");
+$email_form = esc("ivan@mail.ru");
 
 // Подключаемся к базе данных
 
 $connect = mysqli_connect("localhost", "root", "", "things_fine");
 
-// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $us_eml_form используется для поиска в таблице БД.   
+// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.   
 
-$user_name = connect_users($connect, $us_eml_form);
+$user_name = getUsers($connect, $email_form);
 
 // Обращаемся к таблице projects для получения списка проектов 
 
-$projects = connect_projects($connect, $user_name['email']);
+$projects = getProjects($connect, $user_name['email']);
 
 // Обращаемся к таблице tasks для получения списка задач текущего пользователя 
 
-$tasks = connect_tasks($connect, $user_name['email']);
+$tasks = getTasks($connect, $user_name['email']);
 
 // Шаблоны
 

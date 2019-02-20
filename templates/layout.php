@@ -47,11 +47,12 @@
 <!--                   Вывод списка проектов-->
                        <?php foreach($projects as $key => $item): ?>
                         <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#">
-                            <?php print($item); ?>
+                            <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
+                            <a class="main-navigation__list-item-link" href="/index.php?proj_name=<?php print($item['name']); ?>">   
+                            <?php print($item['name']); ?>
                             </a>
 <!--                        Подсчет задач в проекте    -->
-                            <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item)); ?></span>
+                            <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item['name'])); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
