@@ -18,24 +18,15 @@ function include_template($name, $data)
     return $result;
 }
 
-// Функция подсчета   задач
+// Функция подсчета задач
 
 function count_tasks($t, $p)
 {
-    /*
-    print('<pre>');
-        print_r($t);
-    print('</pre>');
-    */
-    print('<pre>');
-    //     print_r($p);
-    print('</pre>');
-
     $count = 0;
 
     foreach ($t as $key => $item) {
 
-        if (strcasecmp(trim($item['project']), trim($p)) == 0) {
+        if ( (int) $item['project_id'] == (int) $p)  {
             $count++;
         }
     }
@@ -107,7 +98,7 @@ function getUsers($con, $email)
         // ТАБЛИЦА USERS
         // Если введенный из формы e-mail есть в базе - получаем имя пользователя и e-mail из таблицы БД. Далее используем их для получения информации из таблиц users, tasks
 
-        $sql = "SELECT name, email FROM users WHERE users.email = '" . trim($email) . "';";
+        $sql = "SELECT * FROM users WHERE users.email = '" . trim($email) . "';";
 
         // Получаем объект результата, проверяем успешность результатов запроса
 
@@ -144,8 +135,9 @@ function getProjects($con, $email)
 
         // Таблица projects: формируем запрос на получение списка проектов по e-mail пользователя выбранного из таблицы users 
 
-        $sql = "SELECT name FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') GROUP BY name ;";
+        $sql = "SELECT * FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "');";
 
+        
         // Получаем объект результата, проверяем успешность результатов запроса
 
         $result = mysqli_query($con, $sql);
@@ -167,6 +159,7 @@ function getProjects($con, $email)
 
 // Подключение к таблице tasks. Параметр $email - эл. почта пользователя, полученная из таблицы users БД
 
+/* ===================
 function getTasks($con, $email)
 {
     // Проверяем результат подключения
@@ -218,5 +211,87 @@ function getTasks($con, $email)
         return $rows;
     }
 }
+=========================*/
+
+// Подключение к таблице tasks. Выборка задач по всем проектам пользователя с идентификатором $user_id 
+
+function getTasks($con, $user_id){
+    
+    if ($con == false) {
+        print ("Ошибка подключения: " . mysqli_connect_error());
+    } else {
+
+        // Устанавливаем кодировку
+
+        mysqli_set_charset($con, "utf8");
+        
+        // Запрос для вывода задач по всем проектам пользователя
+        
+        $sql = "SELECT * FROM tasks WHERE user_id = " . $user_id['id'] . ";";
+        
+        // Получаем объект результата, проверяем успешность результатов запроса
+
+        $result = mysqli_query($con, $sql);
+
+        if ($result == false) {
+            $error = mysqli_error($con);
+            print ("Ошибка MySQL: " . $error);
+        }
+
+        // Преобразуем объект результата в массив 
+
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        
+        // Возвращаем массив задач
+
+        return $rows;
+    }    
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.....
+
+function getTasksByProjectID($con, $proj_id){
+    
+    if ($con == false) {
+        print ("Ошибка подключения: " . mysqli_connect_error());
+    } else {
+
+        // Устанавливаем кодировку
+
+        mysqli_set_charset($con, "utf8");
+        
+        // Запрос для вывода задач по id выбранного проекта
+        
+        $sql = "SELECT * FROM tasks WHERE project_id = " . $proj_id . ";";
+        
+        // Получаем объект результата, проверяем успешность результатов запроса
+
+        $result = mysqli_query($con, $sql);
+
+        if ($result == false) {
+            $error = mysqli_error($con);
+            print ("Ошибка MySQL: " . $error);
+        }
+
+        // Преобразуем объект результата в массив 
+
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        
+        // Возвращаем код ответа 404 вместо содержимого страницы, если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи.
+
+        if (empty($rows)) {
+            http_response_code(404);
+        }
+
+        // Возвращаем массив задач
+
+        return $rows;
+    }    
+}
+
+
+
+
+
 
 ?>

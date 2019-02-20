@@ -48,11 +48,11 @@
                        <?php foreach($projects as $key => $item): ?>
                         <li class="main-navigation__list-item">
                             <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
-                            <a class="main-navigation__list-item-link" href="/index.php?proj_name=<?php print($item['name']); ?>">   
+                            <a class="main-navigation__list-item-link" href="/index.php?project_id=<?php print($item['id']); ?>">   
                             <?php print($item['name']); ?>
                             </a>
 <!--                        Подсчет задач в проекте    -->
-                            <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item['name'])); ?></span>
+                            <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item['id'])); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>

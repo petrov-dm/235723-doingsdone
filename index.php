@@ -7,7 +7,7 @@ $show_complete_tasks = rand(0, 1);
 // Массивы для работы с БД:
 // с таблицей users
 
-$user_name = [];
+$user_data = [];
 
 // с таблицей projects
 
@@ -83,15 +83,21 @@ $connect = mysqli_connect("localhost", "root", "", "things_fine");
 
 // Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.   
 
-$user_name = getUsers($connect, $email_form);
+$user_data = getUsers($connect, $email_form);
 
 // Обращаемся к таблице projects для получения списка проектов 
 
-$projects = getProjects($connect, $user_name['email']);
+$projects = getProjects($connect, $user_data['email']);
 
-// Обращаемся к таблице tasks для получения списка задач текущего пользователя 
+// Вывод задач по выбранному проекту текущего пользователя 
 
-$tasks = getTasks($connect, $user_name['email']);
+if ( isset($_GET['project_id']) ){
+    $projec_id = (int) $_GET['project_id'];
+    $tasks = getTasksByProjectID($connect, $projec_id);
+} else {
+    // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
+    $tasks = getTasks($connect,$user_data);
+}
 
 // Шаблоны
 
@@ -99,7 +105,7 @@ $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'projects' => $projects,
-    'user_name' => $user_name['name'],
+    'user_name' => $user_data['name'],
     'title' => 'Дела в порядке',
     'tasks' => $tasks
 ]);
