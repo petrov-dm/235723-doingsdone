@@ -25,7 +25,7 @@ CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY, 
     user_id INT, 
     project_id INT, 
-    date_created DATE NOT NULL,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_done DATE,
     done TINYINT DEFAULT 0,
     name CHAR(255) NOT NULL,

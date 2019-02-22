@@ -80,6 +80,13 @@ function date_task_exec($d)
     return $result;
 }
 
+// Функция преобразования даты в формат d-m-Y
+function date_dmY($date){
+    if (isset($date)){
+      return date("d-m-Y",strtotime($date));
+    }
+}
+
 // Функции работы с БД
 // Подключение к таблице users. Параметр $email - адрес эл. почты пользователя, полученный из формы
 
@@ -156,62 +163,6 @@ function getProjects($con, $email)
 
     }
 }
-
-// Подключение к таблице tasks. Параметр $email - эл. почта пользователя, полученная из таблицы users БД
-
-/* ===================
-function getTasks($con, $email)
-{
-    // Проверяем результат подключения
-
-    if ($con == false) {
-        print ("Ошибка подключения: " . mysqli_connect_error());
-    } else {
-
-        // Устанавливаем кодировку
-
-        mysqli_set_charset($con, "utf8");
-
-        // Таблица tasks: формируем запрос на получение списка задач по e-mail пользователя, выбранного из таблицы users
-        // Проверяем значение параметра запроса при нажатии на ссылку с названием проекта. Если параметр существует вывод задач только данного проекта
-
-        if (isset($_GET['proj_name'])) {
-
-            // Запрос для вывода задач по одному выбранному проекту пользователя
-
-            $sql = "SELECT * from (SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') and (projects.id = tasks.project_id)) AS tab_one_project WHERE project = '" . trim($_GET['proj_name']) . "'";
-
-            // Запрос для вывода задач по всем проектам пользователя
-
-        } else {
-            $sql = "SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') AND projects.id = tasks.project_id;";
-        }
-
-        // Получаем объект результата, проверяем успешность результатов запроса
-
-        $result = mysqli_query($con, $sql);
-
-        if ($result == false) {
-            $error = mysqli_error($con);
-            print ("Ошибка MySQL: " . $error);
-        }
-
-        // Преобразуем объект результата в массив 
-
-        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
-        // Возвращаем код ответа 404 вместо содержимого страницы, если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи.
-
-        if (empty($rows)) {
-            http_response_code(404);
-        }
-
-        // Возвращаем массив задач
-
-        return $rows;
-    }
-}
-=========================*/
 
 // Подключение к таблице tasks. Выборка задач по всем проектам пользователя с идентификатором $user_id 
 
