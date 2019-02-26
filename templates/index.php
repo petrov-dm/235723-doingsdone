@@ -16,7 +16,8 @@
 
     <label class="checkbox">
         <!--добавить сюда аттрибут "checked", если переменная $show_complete_tasks равна единице-->
-        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if($show_complete_tasks==1): ?> checked
+        <input class="checkbox__input visually-hidden show_completed"
+               type="checkbox" <?php if ($show_complete_tasks == 1): ?> checked
         <?php endif; ?> >
         <span class="checkbox__text">Показывать выполненные</span>
     </label>
@@ -24,46 +25,51 @@
 
 <table class="tasks">
     <!--            Вывод списка задач-->
-    <?php foreach($tasks as $key => $item): ?>
-    <?php if( !(($item['done']===true)&&($show_complete_tasks===0)) ): ?>
-    <!--  Оповещение о необходимости выполнить задачу <= 24ч.  -->
-    <tr class="tasks__item task <?php if ($item['done']===true): ?> task--completed <?php endif; ?> <?php if ( date_task_exec(date_dmY($item['date_planned']))=='make'): ?> task--important <?php  endif; ?>">
-        <td class="task__select">
-            <label class="checkbox task__checkbox">
-                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
-                <!--            Отмечаем просроченные задачи    -->
-                <span class="checkbox__text" <?php if ( date_task_exec(date_dmY($item['date_planned']))=='overdue' ): ?> style="color:red;"
-                    <?php  endif; ?>>
+    <?php foreach ($tasks as $key => $item): ?>
+        <?php if (!(($item['done'] === true) && ($show_complete_tasks === 0))): ?>
+            <!--  Оповещение о необходимости выполнить задачу <= 24ч.  -->
+            <tr class="tasks__item task <?php if ($item['done'] === true): ?> task--completed <?php endif; ?> <?php if (date_task_exec(date_dmY($item['date_planned'])) == 'make'): ?> task--important <?php endif; ?>">
+                <td class="task__select">
+                    <label class="checkbox task__checkbox">
+                        <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
+                        <!--            Отмечаем просроченные задачи    -->
+                        <span
+                            class="checkbox__text" <?php if (date_task_exec(date_dmY($item['date_planned'])) == 'overdue'): ?> style="color:red;"
+                        <?php endif; ?>>
                     <!-- Фильтрация названия задачи-->
                     <?php print(esc($item['name'])); ?>
                 </span>
-            </label>
-        </td>
+                    </label>
+                </td>
 
-        <td class="task__file">
-            <a class="download-link" href="#">Home.psd</a>
-        </td>
+                <td class="task__file">
+                    <a class="download-link" href="<?php if (isset($item['file'])) {
+                        print($item['file']);
+                    } ?>"><?php if (isset($item['file'])) {
+                            print($item['file']);
+                        } ?></a>
+                </td>
 
-        <td class="task__date">
-            <!-- Фильтрация даты задачи-->
-            <?php print(esc( date_dmY($item['date_planned']) ));?>
-        </td>
-    </tr>
-    <?php endif; ?>
+                <td class="task__date">
+                    <!-- Фильтрация даты задачи-->
+                    <?php print(esc(date_dmY($item['date_planned']))); ?>
+                </td>
+            </tr>
+        <?php endif; ?>
     <?php endforeach; ?>
     <!--показывать следующий тег <tr/>, если переменная $show_complete_tasks равна единице-->
-    <?php if($show_complete_tasks == 1): ?>
-    <tr class="tasks__item task task--completed">
-        <td class="task__select">
-            <label class="checkbox task__checkbox">
-                <input class="checkbox__input visually-hidden" type="checkbox" checked>
-                <span class="checkbox__text">Записаться на интенсив "Базовый PHP"</span>
-            </label>
-        </td>
-        <td class="task__date">10.10.2019</td>
+    <?php if ($show_complete_tasks == 1): ?>
+        <tr class="tasks__item task task--completed">
+            <td class="task__select">
+                <label class="checkbox task__checkbox">
+                    <input class="checkbox__input visually-hidden" type="checkbox" checked>
+                    <span class="checkbox__text">Записаться на интенсив "Базовый PHP"</span>
+                </label>
+            </td>
+            <td class="task__date">10.10.2019</td>
 
-        <td class="task__controls">
-        </td>
-    </tr>
+            <td class="task__controls">
+            </td>
+        </tr>
     <?php endif; ?>
 </table>

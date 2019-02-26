@@ -91,17 +91,29 @@ $projects = getProjects($connect, $user_data['email']);
 
 // Вывод задач по выбранному проекту текущего пользователя 
 
-if ( isset($_GET['project_id']) ){
-    $projec_id = (int) $_GET['project_id'];
+if (isset($_GET['project_id'])) {
+    $projec_id = (int)$_GET['project_id'];
     $tasks = getTasksByProjectID($connect, $projec_id);
 } else {
     // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
-    $tasks = getTasks($connect,$user_data);
+    $tasks = getTasks($connect, $user_data);
 }
 
 // Шаблоны
 
+//Содержимое главной страницы по умолчанию - вывод всех задач авторизованного пользователя
+
 $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+
+// Содержимое главной страницы при нажатии кнопок "Добавить задачу" шаблона templates/layout.php
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if (isset($_GET['add_task'])) {
+        $page_content = include_template('add.php', ['projects' => $projects]);
+    }
+}
+
+
 $layout_content = include_template('layout.php', [
     'content' => $page_content,
     'projects' => $projects,

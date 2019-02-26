@@ -26,7 +26,7 @@ function count_tasks($t, $p)
 
     foreach ($t as $key => $item) {
 
-        if ( (int) $item['project_id'] == (int) $p)  {
+        if ((int)$item['project_id'] == (int)$p) {
             $count++;
         }
     }
@@ -80,11 +80,29 @@ function date_task_exec($d)
     return $result;
 }
 
-// Функция преобразования даты в формат d-m-Y
-function date_dmY($date){
-    if (isset($date)){
-      return date("d-m-Y",strtotime($date));
+// Функция преобразования даты в формат d-m-Y. Используется при чтении дат из БД
+function date_dmY($date)
+{
+    if (isset($date)) {
+        return date("d-m-Y", strtotime($date));
     }
+}
+
+// Функция преобразования даты в формат Y-m-d. Используется при записи дат в БД
+function date_Ymd($date)
+{
+    if (isset($date) && ($date != "")) {
+        return date("Y-m-d", strtotime($date));
+    }
+    return true;
+}
+
+// Функция проверки корректности формата даты ДД.ММ.ГГГГ
+
+function is_valid_date($date)
+{
+    return preg_match('/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/', $date, $m)
+        && checkdate($m[2], $m[1], $m[3]);
 }
 
 // Функции работы с БД
@@ -144,7 +162,6 @@ function getProjects($con, $email)
 
         $sql = "SELECT * FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "');";
 
-        
         // Получаем объект результата, проверяем успешность результатов запроса
 
         $result = mysqli_query($con, $sql);
@@ -166,8 +183,9 @@ function getProjects($con, $email)
 
 // Подключение к таблице tasks. Выборка задач по всем проектам пользователя с идентификатором $user_id 
 
-function getTasks($con, $user_id){
-    
+function getTasks($con, $user_id)
+{
+
     if ($con == false) {
         print ("Ошибка подключения: " . mysqli_connect_error());
     } else {
@@ -175,11 +193,11 @@ function getTasks($con, $user_id){
         // Устанавливаем кодировку
 
         mysqli_set_charset($con, "utf8");
-        
+
         // Запрос для вывода задач по всем проектам пользователя
-        
+
         $sql = "SELECT * FROM tasks WHERE user_id = " . $user_id['id'] . ";";
-        
+
         // Получаем объект результата, проверяем успешность результатов запроса
 
         $result = mysqli_query($con, $sql);
@@ -192,17 +210,18 @@ function getTasks($con, $user_id){
         // Преобразуем объект результата в массив 
 
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        
+
         // Возвращаем массив задач
 
         return $rows;
-    }    
+    }
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.....
+// Выборка задач по выбранному проекту
 
-function getTasksByProjectID($con, $proj_id){
-    
+function getTasksByProjectID($con, $proj_id)
+{
+
     if ($con == false) {
         print ("Ошибка подключения: " . mysqli_connect_error());
     } else {
@@ -210,11 +229,11 @@ function getTasksByProjectID($con, $proj_id){
         // Устанавливаем кодировку
 
         mysqli_set_charset($con, "utf8");
-        
+
         // Запрос для вывода задач по id выбранного проекта
-        
+
         $sql = "SELECT * FROM tasks WHERE project_id = " . $proj_id . ";";
-        
+
         // Получаем объект результата, проверяем успешность результатов запроса
 
         $result = mysqli_query($con, $sql);
@@ -227,7 +246,7 @@ function getTasksByProjectID($con, $proj_id){
         // Преобразуем объект результата в массив 
 
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        
+
         // Возвращаем код ответа 404 вместо содержимого страницы, если параметр запроса отсутствует, либо если по этому id не нашли ни одной записи.
 
         if (empty($rows)) {
@@ -237,12 +256,7 @@ function getTasksByProjectID($con, $proj_id){
         // Возвращаем массив задач
 
         return $rows;
-    }    
+    }
 }
-
-
-
-
-
 
 ?>

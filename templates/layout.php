@@ -21,7 +21,7 @@
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus open-modal" href="pages/form-task.html">Добавить задачу</a>
+                <a class="main-header__side-item button button--plus open-modal" href="/index.php?add_task=1">Добавить задачу</a>
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__image">
@@ -29,8 +29,8 @@
                     </div>
 
                     <div class="user-menu__data">
-<!--                    Имя пользователя (Константин) -->
-                        <p><?php print($user_name); ?></p>
+<!--                    Имя пользователя  -->
+                        <p><?php print(esc($user_name)); ?></p>
 
                         <a href="#">Выйти</a>
                     </div>
@@ -48,8 +48,8 @@
                        <?php foreach($projects as $key => $item): ?>
                         <li class="main-navigation__list-item">
                             <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
-                            <a class="main-navigation__list-item-link" href="/index.php?project_id=<?php print($item['id']); ?>">   
-                            <?php print($item['name']); ?>
+                            <a class="main-navigation__list-item-link" href="/index.php?project_id=<?php print(esc($item['id'])); ?>">   
+                            <?php print(esc($item['name'])); ?>
                             </a>
 <!--                        Подсчет задач в проекте    -->
                             <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item['id'])); ?></span>
@@ -77,7 +77,7 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <a class="main-footer__button button button--plus" href="pages/form-task.html">Добавить задачу</a>
+        <a class="main-footer__button button button--plus" href="/index.php?add_task=1">Добавить задачу</a>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
