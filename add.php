@@ -41,17 +41,10 @@ $user_data = getUsers($connect, $email_form);
 
 $projects = getProjects($connect, $user_data['email']);
 
-// Вывод задач по выбранному проекту текущего пользователя 
+// Считываем список задач пользователя
 
-if (isset($_GET['project_id'])) {
-    $projec_id = (int)$_GET['project_id'];
-    $tasks = getTasksByProjectID($connect, $projec_id);
-} else {
-    // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
-    $tasks = getTasks($connect, $user_data);
-}
+$tasks = getTasks($connect, $user_data);
 
-// Содержимое главной страницы при нажатии кнопок "Добавить" шаблона templates/add.php
 // Проверяем что сценарий вызван методом POST формы
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Подтверждение того, что метод вызван формой, вводящей новую задачу  
@@ -226,5 +219,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+// Содержимое главной страницы при нажатии кнопок "Добавить" шаблона templates/add.php    
+    if (isset($_GET['add_task'])) {
+        $page_content = include_template('add.php', ['projects' => $projects]);
+    } else {
+        if (isset($_GET['project_id'])) {
+            // Вывод задач по выбранному проекту текущего пользователя 
+            $projec_id = (int)$_GET['project_id'];
+            $tasks = getTasksByProjectID($connect, $projec_id);
+        } else {
+            // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
+            $tasks = getTasks($connect, $user_data);
+        }
+        $page_content = include_template('index.php',
+            ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+    }
+
+    $layout_content = include_template('layout.php', [
+        'content' => $page_content,
+        'projects' => $projects,
+        'user_name' => $user_data['name'],
+        'title' => 'Дела в порядке',
+        'tasks' => $tasks
+    ]);
+    print ($layout_content);
+
+}
+
 
 ?>

@@ -1,7 +1,6 @@
 <h2 class="content__main-heading">Добавление задачи</h2>
 
-<form <?php print('enctype="multipart/form-data"'); ?> class="form" action="<?php print('../add.php'); ?>"
-                                                       method="post" <?php print('name="add_task"'); ?>>
+<form enctype="multipart/form-data" class="form" action="../add.php" method="post" name="add_task">
     <div class="form__row">
         <label class="form__label" for="name">Название <sup>*</sup></label>
 
