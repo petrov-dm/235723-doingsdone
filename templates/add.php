@@ -1,6 +1,6 @@
 <h2 class="content__main-heading">Добавление задачи</h2>
 
-<form enctype="multipart/form-data" class="form" action="../add.php" method="post" name="add_task">
+<form enctype="multipart/form-data" class="form" action="/add.php" method="post" name="add_task">
     <div class="form__row">
         <label class="form__label" for="name">Название <sup>*</sup></label>
 
@@ -12,11 +12,10 @@
         $dict_info = isset($dict['name']) ? $dict['name'] : "";
         ?>
 
-        <input class="form__input <?php print($classname); ?>" type="text" name="name" id="name"
-               value="<?php print($value); ?>" placeholder="Введите название">
-        <?php if (isset($dict['name']) && isset($errors['name'])) {
-            print("<p class = 'form__message'>$dict_info</p>");
-        } ?>
+        <input class="form__input <?= $classname ?>" type="text" name="name" id="name" value="<?= $value ?>" placeholder="Введите название">
+        <?php if (isset($dict['name']) && isset($errors['name'])): ?>
+            <p class = 'form__message'> <?= $dict_info ?> </p>
+        <?php endif; ?>
     </div>
 
     <div class="form__row">
@@ -30,22 +29,22 @@
         $dict_info = isset($dict['project']) ? $dict['project'] : "";
         ?>
 
-        <select class="form__input form__input--select <?php print($classname); ?>" name="project" id="project">
+        <select class="form__input form__input--select <?= $classname ?>" name="project" id="project">
             <!--            Заполняем список проектов из БД-->
             <?php foreach ($projects as $key => $item): ?>
-                <option value="<?php print(esc($item['id'])); ?>"><?php print(esc($item['name'])); ?></option>
+                <option value="<?= esc($item['id']) ?>"><?= esc($item['name']) ?></option>
             <?php endforeach; ?>
         </select>
-        <?php if (isset($dict['project']) && isset($errors['project'])) {
-            print("<p class = 'form__message'>$dict_info</p>");
-        } ?>
+        <?php if (isset($dict['project']) && isset($errors['project'])): ?>
+            <p class = 'form__message'><?= $dict_info ?></p>
+        <?php endif; ?>
 
     </div>
 
     <div class="form__row">
         <label class="form__label" for="date">Дата выполнения</label>
 
-        <!--    Отображаем ошибки валидации поля названия даты-->
+        <!--    Отображаем ошибки валидации поля значения даты-->
 
         <?php
         $classname = isset($errors['date']) ? "form__input--error" : "";
@@ -53,12 +52,12 @@
         $dict_info = isset($dict['date']) ? $dict['date'] : "";
         ?>
 
-        <input class="form__input form__input--date <?php print($classname); ?>" type="date" name="date" id="date"
-               value="<?php print($value); ?>"
+        <input class="form__input form__input--date <?= $classname ?>" type="date" name="date" id="date"
+               value="<?= $value ?>"
                placeholder="Введите дату в формате ДД.ММ.ГГГГ">
-        <?php if (isset($dict['date']) && isset($errors['date'])) {
-            print("<p class = 'form__message'>$dict_info</p>");
-        } ?>
+        <?php if (isset($dict['date']) && isset($errors['date'])): ?> 
+            <p class = 'form__message'><?= $dict_info ?></p>
+        <?php endif; ?>
     </div>
 
     <div class="form__row">

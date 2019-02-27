@@ -37,7 +37,7 @@
                             class="checkbox__text" <?php if (date_task_exec(date_dmY($item['date_planned'])) == 'overdue'): ?> style="color:red;"
                         <?php endif; ?>>
                     <!-- Фильтрация названия задачи-->
-                    <?php print(esc($item['name'])); ?>
+                    <?= esc($item['name']) ?>
                 </span>
                     </label>
                 </td>
@@ -52,7 +52,7 @@
 
                 <td class="task__date">
                     <!-- Фильтрация даты задачи-->
-                    <?php print(esc(date_dmY($item['date_planned']))); ?>
+                    <?= esc(date_dmY($item['date_planned'])) ?>
                 </td>
             </tr>
         <?php endif; ?>

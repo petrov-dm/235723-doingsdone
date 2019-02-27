@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
 // Фиксация ошибки выбора проекта
-
+            
         if ($row_cnt == 0) {
             $errors['project'] = 'Проект не существует';
         }
@@ -149,13 +149,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         } else {
             //Ветка при отсутствии ошибок валидации
-            //Если пользователь выбрал файл загружаем его в корневую папку проекта
+            //Если пользователь выбрал файл загружаем его в папку uploads
             if (isset($_FILES['preview'])) {
 
                 $file_name = $_FILES['preview']['name'];
                 $file_path = __DIR__;
-                $file_url = $file_name;
-                move_uploaded_file($_FILES['preview']['tmp_name'], $file_path . '\\' . $file_name);
+                if ($file_name != "") {
+                    $file_url = "uploads\\" . $file_name;
+                }
+                move_uploaded_file($_FILES['preview']['tmp_name'], $file_path . '\\uploads\\' . $file_name);
             }
 
             // Записываем задачу в БД.
@@ -220,22 +222,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-// Содержимое главной страницы при нажатии кнопок "Добавить" шаблона templates/add.php    
-    if (isset($_GET['add_task'])) {
+//if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+//// Содержимое главной страницы при нажатии кнопок "Добавить" шаблона templates/add.php    
+//    if (isset($_GET['add_task'])) {
         $page_content = include_template('add.php', ['projects' => $projects]);
-    } else {
-        if (isset($_GET['project_id'])) {
-            // Вывод задач по выбранному проекту текущего пользователя 
-            $projec_id = (int)$_GET['project_id'];
-            $tasks = getTasksByProjectID($connect, $projec_id);
-        } else {
-            // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
-            $tasks = getTasks($connect, $user_data);
-        }
-        $page_content = include_template('index.php',
-            ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
-    }
+//    } else {
+//        if (isset($_GET['project_id'])) {
+//            // Вывод задач по выбранному проекту текущего пользователя 
+//            $projec_id = (int)$_GET['project_id'];
+//            $tasks = getTasksByProjectID($connect, $projec_id);
+//        } else {
+//            // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
+//            $tasks = getTasks($connect, $user_data);
+//        }
+//        $page_content = include_template('index.php',
+//            ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+//    }
 
     $layout_content = include_template('layout.php', [
         'content' => $page_content,
@@ -246,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     ]);
     print ($layout_content);
 
-}
+//}
 
 
-?>
+
