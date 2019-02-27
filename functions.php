@@ -18,24 +18,15 @@ function include_template($name, $data)
     return $result;
 }
 
-// Функция подсчета   задач
+// Функция подсчета задач
 
 function count_tasks($t, $p)
 {
-    /*
-    print('<pre>');
-        print_r($t);
-    print('</pre>');
-    */
-    print('<pre>');
-    //     print_r($p);
-    print('</pre>');
-
     $count = 0;
 
     foreach ($t as $key => $item) {
 
-        if (strcasecmp(trim($item['project']), trim($p)) == 0) {
+        if ((int)$item['project_id'] == (int)$p) {
             $count++;
         }
     }
@@ -89,6 +80,31 @@ function date_task_exec($d)
     return $result;
 }
 
+// Функция преобразования даты в формат d-m-Y. Используется при чтении дат из БД
+function date_dmY($date)
+{
+    if (isset($date)) {
+        return date("d-m-Y", strtotime($date));
+    }
+}
+
+// Функция преобразования даты в формат Y-m-d. Используется при записи дат в БД
+function date_Ymd($date)
+{
+    if (isset($date) && ($date != "")) {
+        return date("Y-m-d", strtotime($date));
+    }
+    return true;
+}
+
+// Функция проверки корректности формата даты ДД.ММ.ГГГГ
+
+function is_valid_date($date)
+{
+    return preg_match('/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/', $date, $m)
+        && checkdate($m[2], $m[1], $m[3]);
+}
+
 // Функции работы с БД
 // Подключение к таблице users. Параметр $email - адрес эл. почты пользователя, полученный из формы
 
@@ -107,7 +123,7 @@ function getUsers($con, $email)
         // ТАБЛИЦА USERS
         // Если введенный из формы e-mail есть в базе - получаем имя пользователя и e-mail из таблицы БД. Далее используем их для получения информации из таблиц users, tasks
 
-        $sql = "SELECT name, email FROM users WHERE users.email = '" . trim($email) . "';";
+        $sql = "SELECT * FROM users WHERE users.email = '" . trim($email) . "';";
 
         // Получаем объект результата, проверяем успешность результатов запроса
 
@@ -144,7 +160,7 @@ function getProjects($con, $email)
 
         // Таблица projects: формируем запрос на получение списка проектов по e-mail пользователя выбранного из таблицы users 
 
-        $sql = "SELECT name FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') GROUP BY name ;";
+        $sql = "SELECT * FROM projects WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "');";
 
         // Получаем объект результата, проверяем успешность результатов запроса
 
@@ -165,11 +181,10 @@ function getProjects($con, $email)
     }
 }
 
-// Подключение к таблице tasks. Параметр $email - эл. почта пользователя, полученная из таблицы users БД
+// Подключение к таблице tasks. Выборка задач по всем проектам пользователя с идентификатором $user_id 
 
-function getTasks($con, $email)
+function getTasks($con, $user_id)
 {
-    // Проверяем результат подключения
 
     if ($con == false) {
         print ("Ошибка подключения: " . mysqli_connect_error());
@@ -179,20 +194,45 @@ function getTasks($con, $email)
 
         mysqli_set_charset($con, "utf8");
 
-        // Таблица tasks: формируем запрос на получение списка задач по e-mail пользователя, выбранного из таблицы users
-        // Проверяем значение параметра запроса при нажатии на ссылку с названием проекта. Если параметр существует вывод задач только данного проекта
+        // Запрос для вывода задач по всем проектам пользователя
 
-        if (isset($_GET['proj_name'])) {
+        $sql = "SELECT * FROM tasks WHERE user_id = " . $user_id['id'] . ";";
 
-            // Запрос для вывода задач по одному выбранному проекту пользователя
+        // Получаем объект результата, проверяем успешность результатов запроса
 
-            $sql = "SELECT * from (SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') and (projects.id = tasks.project_id)) AS tab_one_project WHERE project = '" . trim($_GET['proj_name']) . "'";
+        $result = mysqli_query($con, $sql);
 
-            // Запрос для вывода задач по всем проектам пользователя
-
-        } else {
-            $sql = "SELECT tasks.name, tasks.date_planned AS date, projects.name AS project, tasks.done FROM tasks INNER JOIN projects ON tasks.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') WHERE projects.user_id = (SELECT id FROM users WHERE users.email = '" . trim($email) . "') AND projects.id = tasks.project_id;";
+        if ($result == false) {
+            $error = mysqli_error($con);
+            print ("Ошибка MySQL: " . $error);
         }
+
+        // Преобразуем объект результата в массив 
+
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+        // Возвращаем массив задач
+
+        return $rows;
+    }
+}
+
+// Выборка задач по выбранному проекту
+
+function getTasksByProjectID($con, $proj_id)
+{
+
+    if ($con == false) {
+        print ("Ошибка подключения: " . mysqli_connect_error());
+    } else {
+
+        // Устанавливаем кодировку
+
+        mysqli_set_charset($con, "utf8");
+
+        // Запрос для вывода задач по id выбранного проекта
+
+        $sql = "SELECT * FROM tasks WHERE project_id = " . $proj_id . ";";
 
         // Получаем объект результата, проверяем успешность результатов запроса
 

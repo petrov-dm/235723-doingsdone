@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-<!--  Переменная, в которой будет имя страницы (Дела в порядке) -->
-    <title><?php print($title); ?></title>
+    <!--  Переменная, в которой будет имя страницы (Дела в порядке) -->
+    <title><?= $title ?></title>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/flatpickr.min.css">
@@ -21,7 +21,8 @@
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus open-modal" href="pages/form-task.html">Добавить задачу</a>
+                <a class="main-header__side-item button button--plus open-modal" href="/add.php">Добавить
+                    задачу</a>
 
                 <div class="main-header__side-item user-menu">
                     <div class="user-menu__image">
@@ -29,8 +30,8 @@
                     </div>
 
                     <div class="user-menu__data">
-<!--                    Имя пользователя (Константин) -->
-                        <p><?php print($user_name); ?></p>
+                        <!-- Имя пользователя -->
+                        <p><?= esc($user_name) ?></p>
 
                         <a href="#">Выйти</a>
                     </div>
@@ -44,16 +45,19 @@
 
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
-<!--                   Вывод списка проектов-->
-                       <?php foreach($projects as $key => $item): ?>
-                        <li class="main-navigation__list-item">
-                            <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
-                            <a class="main-navigation__list-item-link" href="/index.php?proj_name=<?php print($item['name']); ?>">   
-                            <?php print($item['name']); ?>
-                            </a>
-<!--                        Подсчет задач в проекте    -->
-                            <span class="main-navigation__list-item-count"><?php print(count_tasks($tasks,$item['name'])); ?></span>
-                        </li>
+                        <!--                   Вывод списка проектов-->
+                        <?php foreach ($projects as $key => $item): ?>
+                            <li class="main-navigation__list-item">
+                                <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
+                                <a class="main-navigation__list-item-link"
+                                   href="/index.php?project_id= 
+                                   <?= esc($item['id']) ?>">
+                                    <?= esc($item['name']) ?>
+                                </a>
+                                <!--                        Подсчет задач в проекте    -->
+                                <span class="main-navigation__list-item-count"><?= count_tasks($tasks,
+                                        $item['id']) ?></span>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 </nav>
@@ -61,9 +65,9 @@
                 <a class="button button--transparent button--plus content__side-button"
                    href="pages/form-project.html" target="project_add">Добавить проект</a>
             </section>
-<!--        Вывод переменной, в которой будет контент страницы     -->
+            <!--        Вывод переменной, в которой будет контент страницы     -->
             <main class="content__main">
-                  <?php print($content); ?>
+                <?php print($content); ?>
             </main>
         </div>
     </div>
@@ -77,7 +81,7 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <a class="main-footer__button button button--plus" href="pages/form-task.html">Добавить задачу</a>
+        <a class="main-footer__button button button--plus" href="/add.php">Добавить задачу</a>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
