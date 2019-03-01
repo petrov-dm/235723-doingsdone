@@ -8,13 +8,14 @@
 
         <?php
         $classname = isset($errors['name']) ? "form__input--error" : "";
-        $value = isset($task_value['name']) ? $task_value['name'] : "";
+        $value = isset($task_value['name']) ? esc($task_value['name']) : "";
         $dict_info = isset($dict['name']) ? $dict['name'] : "";
         ?>
 
-        <input class="form__input <?= $classname ?>" type="text" name="name" id="name" value="<?= $value ?>" placeholder="Введите название">
+        <input class="form__input <?= $classname ?>" type="text" name="name" id="name" value="<?= $value ?>"
+               placeholder="Введите название">
         <?php if (isset($dict['name']) && isset($errors['name'])): ?>
-            <p class = 'form__message'> <?= $dict_info ?> </p>
+            <p class='form__message'> <?= $dict_info ?> </p>
         <?php endif; ?>
     </div>
 
@@ -25,7 +26,7 @@
 
         <?php
         $classname = isset($errors['project']) ? "form__input--error" : "";
-        $value = isset($task_value['project']) ? $task_value['project'] : "";
+        $value = isset($task_value['project']) ? esc($task_value['project']) : "";
         $dict_info = isset($dict['project']) ? $dict['project'] : "";
         ?>
 
@@ -36,7 +37,7 @@
             <?php endforeach; ?>
         </select>
         <?php if (isset($dict['project']) && isset($errors['project'])): ?>
-            <p class = 'form__message'><?= $dict_info ?></p>
+            <p class='form__message'><?= $dict_info ?></p>
         <?php endif; ?>
 
     </div>
@@ -48,15 +49,15 @@
 
         <?php
         $classname = isset($errors['date']) ? "form__input--error" : "";
-        $value = isset($task_value['date']) ? $task_value['date'] : "";
+        $value = isset($task_value['date']) ? esc($task_value['date']) : "";
         $dict_info = isset($dict['date']) ? $dict['date'] : "";
         ?>
 
         <input class="form__input form__input--date <?= $classname ?>" type="date" name="date" id="date"
                value="<?= $value ?>"
                placeholder="Введите дату в формате ДД.ММ.ГГГГ">
-        <?php if (isset($dict['date']) && isset($errors['date'])): ?> 
-            <p class = 'form__message'><?= $dict_info ?></p>
+        <?php if (isset($dict['date']) && isset($errors['date'])): ?>
+            <p class='form__message'><?= $dict_info ?></p>
         <?php endif; ?>
     </div>
 
