@@ -1,25 +1,10 @@
 <?php
 
-// показывать или нет выполненные задачи
+session_start();
 
-$show_complete_tasks = rand(0, 1);
+// Подключение к БД и создание массивов для работы с ней
 
-// Массивы для работы с БД:
-// с таблицей users
-
-$user_data = [];
-
-// с таблицей projects
-
-$projects = [];
-
-// с таблицей tasks
-
-$tasks = [];
-
-// Переменная для получения e-mail пользователя из формы
-
-$email_form = "";
+require_once('init.php');
 
 // Подключаем функции
 
@@ -29,11 +14,7 @@ require_once('functions.php');
 
 $email_form = esc("ivan@mail.ru");
 
-// Подключаемся к базе данных
-
-$connect = mysqli_connect("localhost", "root", "", "things_fine");
-
-// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.   
+// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.
 
 $user_data = getUsers($connect, $email_form);
 
@@ -105,14 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     print ("Ошибка MySQL: " . $error);
                 }
 
-//  Считаем количество возвращенных записей, если 0, то id проекта нен в БД    
+//  Считаем количество возвращенных записей, если 0, то id проекта нет в БД    
 
                 $row_cnt = mysqli_num_rows($result);
             }
         }
 
 // Фиксация ошибки выбора проекта
-            
+
         if ($row_cnt == 0) {
             $errors['project'] = 'Проект не существует';
         }
@@ -180,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $safe_name = mysqli_real_escape_string($connect, isset($_POST['name']) ? $_POST['name'] : "");
             //print("$safe_name <br>");
 
-
             $tmp = isset($file_url) ? $file_url : "";
             $safe_file = mysqli_real_escape_string($connect, $tmp);
             //print("$safe_file <br>");
@@ -222,33 +202,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-//if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-//// Содержимое главной страницы при нажатии кнопок "Добавить" шаблона templates/add.php    
-//    if (isset($_GET['add_task'])) {
-        $page_content = include_template('add.php', ['projects' => $projects]);
-//    } else {
-//        if (isset($_GET['project_id'])) {
-//            // Вывод задач по выбранному проекту текущего пользователя 
-//            $projec_id = (int)$_GET['project_id'];
-//            $tasks = getTasksByProjectID($connect, $projec_id);
-//        } else {
-//            // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя 
-//            $tasks = getTasks($connect, $user_data);
-//        }
-//        $page_content = include_template('index.php',
-//            ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
-//    }
 
-    $layout_content = include_template('layout.php', [
-        'content' => $page_content,
-        'projects' => $projects,
-        'user_name' => $user_data['name'],
-        'title' => 'Дела в порядке',
-        'tasks' => $tasks
-    ]);
-    print ($layout_content);
+$page_content = include_template('add.php', ['projects' => $projects]);
 
-//}
+$layout_content = include_template('layout.php', [
+    'content' => $page_content,
+    'projects' => $projects,
+    'user_name' => $user_data['name'],
+    'title' => 'Дела в порядке',
+    'tasks' => $tasks
+]);
+print ($layout_content);
+
 
 
 
