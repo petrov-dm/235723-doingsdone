@@ -9,40 +9,28 @@ require_once('init.php');
 
 require_once('functions.php');
 
-
 // Проверяем аутентификацию пользователя 
+// $_SESSION['user']  - пользователь аутентифицирован, если эта сессия существует
 
-// $_SESSION['user_data'] = $user_data; - пользователь аутентифицирован
+if (!isset($_SESSION['user'])) {
 
-// unset($_SESSION); - пользователь не аутентифицирован
-
-if (!isset($_SESSION['user_data'])) {
-
-// ========== ЭТО ВЫПОЛНЯЕТСЯ ДО АУТЕНТИФИКАЦИИ ======
-
-// Выводим страницу регистрации, если пользователь не аутентифицирован  
+// Выводим гостевую страницу, если пользователь не аутентифицирован  
 // Выше и ниже header не должно быть вывода html или текста (иначе возникнет ошибка)      
 
-    header('Location: register.php');
-
+    header('Location: guest.php');
 
 } else {
 
 // ========== ЭТО ВЫПОЛНЯЕТСЯ ПОСЛЕ АУТЕНТИФИКАЦИИ ======
 
-
-// Получаем e-mail пользователя из формы. Используем функцию фильтрации esc().
-
-    $email_form = esc("ivan@mail.ru"); // - вместо этого $user_data['email'];
-
-
 // Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.   
 
-    $user_data = getUsers($connect, $email_form);
+    $user_data = getUsers($connect, $_SESSION['user']['email']);
 
 // Обращаемся к таблице projects для получения списка проектов 
 
     $projects = getProjects($connect, $user_data['email']);
+    // будет $projects = getProjects($connect, $_SESSION['user']['email]);
 
 // Вывод задач по выбранному проекту текущего пользователя 
 
@@ -52,6 +40,7 @@ if (!isset($_SESSION['user_data'])) {
     } else {
         // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя
         $tasks = getTasks($connect, $user_data);
+        // будет  $tasks = getTasks($connect, $_SESSION['user']);
     }
 
 // Шаблоны
@@ -67,7 +56,6 @@ if (!isset($_SESSION['user_data'])) {
             $page_content = include_template('add.php', ['projects' => $projects]);
         }
     }
-
 
     $layout_content = include_template('layout.php', [
         'content' => $page_content,

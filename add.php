@@ -12,11 +12,11 @@ require_once('functions.php');
 
 // Получаем e-mail пользователя из формы. Используем функцию фильтрации esc().
 
-$email_form = esc("ivan@mail.ru");
+//$email_form = esc("ivan@mail.ru");
 
 // Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.
 
-$user_data = getUsers($connect, $email_form);
+$user_data = getUsers($connect, $_SESSION['user']['email']);
 
 // Обращаемся к таблице projects для получения списка проектов 
 
@@ -127,6 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'tasks' => $tasks
             ]);
             print ($layout_content);
+            exit();
 
         } else {
             //Ветка при отсутствии ошибок валидации
@@ -197,11 +198,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'tasks' => $tasks
             ]);
             print ($layout_content);
+            exit();
 
         }
     }
 }
-
 
 $page_content = include_template('add.php', ['projects' => $projects]);
 

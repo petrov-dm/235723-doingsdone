@@ -4,42 +4,66 @@
 <head>
     <meta charset="UTF-8">
     <!--  Переменная, в которой будет имя страницы (Дела в порядке) -->
-    <title><?= $title ?></title>
+    <title>
+        <?= $title ?>
+    </title>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
-
-<body>
+<!-- устанавливаем class="body-background" для /guest.php  -->
+<body <?php if ($_SERVER['SCRIPT_NAME'] == "/guest.php"): ?> class="body-background" <?php endif; ?> >
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
-    <div class="container container--with-sidebar">
+    <!--    убираем класс  container--with-sidebar для /guest.php     -->
+    <div
+        class="container <?php if ($_SERVER['SCRIPT_NAME'] != "/guest.php"): ?> container--with-sidebar <?php endif; ?>">
         <header class="main-header">
             <a href="/">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
 
             <div class="main-header__side">
-                <a class="main-header__side-item button button--plus open-modal" href="/add.php">Добавить
-                    задачу</a>
 
-                <div class="main-header__side-item user-menu">
-                    <div class="user-menu__image">
-                        <img src="img/user.png" width="40" height="40" alt="Пользователь">
+                <!-- begin вывод для аутент. пользов. -->
+                <?php if (isset($user_name)): ?>
+
+                    <a class="main-header__side-item button button--plus open-modal" href="/add.php">Добавить
+                        задачу</a>
+
+                    <div class="main-header__side-item user-menu">
+
+                        <div class="user-menu__image">
+                            <img src="img/user.png" width="40" height="40" alt="Пользователь">
+                        </div>
+
+                        <div class="user-menu__data">
+                            <!-- Имя пользователя -->
+                            <p>
+                                <?= esc($user_name) ?>
+                            </p>
+
+                            <a href="/logout.php">Выйти</a>
+                        </div>
                     </div>
+                    <!-- end вывод для аутент. пользов. -->
+                <?php endif; ?>
 
-                    <div class="user-menu__data">
-                        <!-- Имя пользователя -->
-                        <p><?= esc($user_name) ?></p>
-
-                        <a href="#">Выйти</a>
-                    </div>
-                </div>
+                <!-- begin вывод для гостя -->
+                <?php if (!isset($user_name)): ?>
+                    <a class="main-header__side-item button button--transparent" href="auth.php">Войти</a>
+                    <!-- end вывод для гостя -->
+                <?php endif; ?>
             </div>
         </header>
 
+
+        <!-- begin вывод для аутент. пользов. -->
+        <?php if (isset($user_name)): ?>
+
         <div class="content">
+
             <section class="content__side">
                 <h2 class="content__side-heading">Проекты</h2>
 
@@ -49,8 +73,7 @@
                         <?php foreach ($projects as $key => $item): ?>
                             <li class="main-navigation__list-item">
                                 <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
-                                <a class="main-navigation__list-item-link"
-                                   href="/index.php?project_id= 
+                                <a class="main-navigation__list-item-link" href="/index.php?project_id= 
                                    <?= esc($item['id']) ?>">
                                     <?= esc($item['name']) ?>
                                 </a>
@@ -62,14 +85,26 @@
                     </ul>
                 </nav>
 
-                <a class="button button--transparent button--plus content__side-button"
-                   href="pages/form-project.html" target="project_add">Добавить проект</a>
+                <a class="button button--transparent button--plus content__side-button" href="pages/form-project.html"
+                   target="project_add">Добавить проект</a>
             </section>
             <!--        Вывод переменной, в которой будет контент страницы     -->
             <main class="content__main">
+
+                <!-- end вывод для аутент. пользов. -->
+                <?php endif; ?>
+
                 <?php print($content); ?>
+
+                <!-- begin вывод для аутент. пользов. -->
+                <?php if (isset($user_name)): ?>
             </main>
+
         </div>
+
+        <!-- end вывод для аутент. пользов. -->
+    <?php endif; ?>
+
     </div>
 </div>
 
@@ -81,7 +116,13 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <a class="main-footer__button button button--plus" href="/add.php">Добавить задачу</a>
+        <!-- begin вывод для аутент. пользов. -->
+        <?php if (isset($user_name)): ?>
+
+            <a class="main-footer__button button button--plus" href="/add.php">Добавить задачу</a>
+
+            <!-- end вывод для аутент. пользов. -->
+        <?php endif; ?>
 
         <div class="main-footer__social social">
             <span class="visually-hidden">Мы в соцсетях:</span>
@@ -135,4 +176,5 @@
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
 </body>
+
 </html>
