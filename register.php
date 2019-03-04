@@ -60,6 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Получаем объект результата, проверяем успешность результатов запроса
 
             $result = mysqli_query($connect, $sql);
+
+            checkEmail($result,$connect, $errors);
+
+            /*
             if ($result == false) {
                 $error = mysqli_error($connect);
                 print ("Ошибка MySQL: " . $error);
@@ -71,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
 
             }
+            */
         }
     }
 
@@ -112,11 +117,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $result = mysqli_query($connect, $sql);
 
+            checkResult($result,$connect);
+            /*
             if (!$result) {
                 $error = mysqli_error($connect);
                 print("Ошибка MySQL: " . $error);
             }
-
+            */
         }
 
         // После успешной регистрации открываем форму входа auth.php  

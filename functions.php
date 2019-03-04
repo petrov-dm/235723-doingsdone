@@ -264,4 +264,28 @@ function getTasksByProjectID($con, $proj_id)
     }
 }
 
+// Функция проверки существования адреса e-mail в БД
+function checkEmail($result,$connect, &$errors){
+    if ($result == false) {
+        $error = mysqli_error($connect);
+        print ("Ошибка MySQL: " . $error);
+    } else {
+        $row_cnt = mysqli_num_rows($result);
+        // Если в БД уже есть такой e-mail фиксируем ошибку
+        if ($row_cnt != 0) {
+            $errors['email'] = $errors['email'] . 'Такой E-mail уже зарегистрирован. ';
+        }
+
+    }
+}
+
+// Функция проверки результата выполнения запроса к БД
+function checkResult($result,$connect){
+    if (!$result) {
+        $error = mysqli_error($connect);
+        print("Ошибка MySQL: " . $error);
+    }
+}
+
+
 ?>

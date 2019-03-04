@@ -81,11 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Получаем объект результата, проверяем успешность результатов запроса
 
                 $result = mysqli_query($connect, $sql);
+
+                checkResult($result,$connect);
+                /*
                 if ($result == false) {
                     $error = mysqli_error($connect);
                     print ("Ошибка MySQL: " . $error);
                 }
-
+                */
 //  Считаем количество возвращенных записей, если 0, то id проекта нет в БД    
 
                 $row_cnt = mysqli_num_rows($result);
@@ -132,13 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             //Ветка при отсутствии ошибок валидации
             //Если пользователь выбрал файл загружаем его в папку uploads
-            if (isset($_FILES['preview'])) {
+            if ( isset($_FILES['preview']) && ($_FILES['preview']['name'] != "") ) {
 
                 $file_name = $_FILES['preview']['name'];
                 $file_path = __DIR__;
-                if ($file_name != "") {
-                    $file_url = "uploads\\" . $file_name;
-                }
+                $file_url = "uploads\\" . $file_name;
                 move_uploaded_file($_FILES['preview']['tmp_name'], $file_path . '\\uploads\\' . $file_name);
             }
 
@@ -181,11 +182,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $result = mysqli_query($connect, $sql);
 
+            checkResult($result,$connect);
+            /*
             if (!$result) {
                 $error = mysqli_error($connect);
                 print("Ошибка MySQL: " . $error);
             }
-
+            */
             // После успешной записи в БД загружаем шаблон основной страницы по умолчанию: список всех задач авторизованного пользователя
 
             $page_content = include_template('index.php',
