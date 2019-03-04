@@ -137,9 +137,14 @@ function getUsers($con, $email)
 
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-        // Возвращаем массив [имя полльзователя, e-mail]
+        // Возвращаем массив [имя пользователя, e-mail]
 
-        return $rows[0];
+        $tmp = [];
+        if (empty($rows)) {
+            return $tmp;
+        } else {
+            return $rows[0];
+        }
     }
 }
 
