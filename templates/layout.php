@@ -20,7 +20,7 @@
     <div
         class="container <?php if ($_SERVER['SCRIPT_NAME'] != "/guest.php"): ?> container--with-sidebar <?php endif; ?>">
         <header class="main-header">
-            <a href="/">
+            <a href="/index.php">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
 
@@ -74,18 +74,18 @@
                             <li class="main-navigation__list-item">
                                 <!-- Ссылка + параметр запроса, в качестве идентификатора используем имя проекта -->
                                 <a class="main-navigation__list-item-link" href="/index.php?project_id= 
-                                   <?= esc($item['id']) ?>">
-                                    <?= esc($item['name']) ?>
+                                   <?= esc(isset($item['id']) ? $item['id'] : "") ?>">
+                                    <?= esc(isset($item['name']) ? $item['name'] : "") ?>
                                 </a>
                                 <!--                        Подсчет задач в проекте    -->
                                 <span class="main-navigation__list-item-count"><?= count_tasks($tasks,
-                                        $item['id']) ?></span>
+                                        isset($item['id']) ? $item['id'] : "") ?></span>
                             </li>
                         <?php endforeach; ?>
                     </ul>
                 </nav>
 
-                <a class="button button--transparent button--plus content__side-button" href="pages/form-project.html"
+                <a class="button button--transparent button--plus content__side-button" href="project.php"
                    target="project_add">Добавить проект</a>
             </section>
             <!--        Вывод переменной, в которой будет контент страницы     -->
@@ -101,9 +101,8 @@
             </main>
 
         </div>
-
-        <!-- end вывод для аутент. пользов. -->
-    <?php endif; ?>
+                <!-- end вывод для аутент. пользов. -->
+                <?php endif; ?>
 
     </div>
 </div>

@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($errors['email'])) {
 
-        // Для предотвращения SQL-инъекции вносим занчение из формы в переменную $safe_email
+        // Для предотвращения SQL-инъекции вносим значение из формы в переменную $safe_email
 
         $safe_email = mysqli_real_escape_string($connect, isset($_POST['email']) ? $_POST['email'] : "");
 
@@ -59,9 +59,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ((int)count($errors) == 0) {
         // Ошибок нет. E-mail пользователя зарегистрирован в системе. Проверяем введенный в форму пароль
         if (password_verify($_POST['password'], $user_data['pwd'])) {
-            // Пароль верный. Пользователь аутентифицирован. Открываем сессию. Переходим на главную страницу.
+
+            // Пароль верный. Пользователь аутентифицирован. Открываем сессию. 
+
             $_SESSION['user'] = $user_data;
+
+            // После аутентификации по умолчанию выполненные задачи не отображаются
+
+            $_SESSION['user']['show_complete_tasks'] = 0;
+            
+            // Переходим на главную страницу.
+            
             header('Location: index.php');
+
         } else {
             $errors['password'] = "Не верный пароль! Повторите попытку.";
         }
@@ -79,13 +89,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 }
 
-/* Этот фрагмент код выполняется при: 
+/* 
+   Этот фрагмент код выполняется при: 
    1) перенаправлении со сценария register.php,после успешной регистрации 
    2) нажатии кнопки "Войти" в header страницы
    3) нажатии кнопки "Войти" в сценарии register.php (находится в левой части окна)
    4) нажатии кнопки "Войти" в сценарии auth.php (находится в левой части окна)
    Пользователь еще не аутентифицирован и для него отображается форма входа.
 */
+
 require_once('functions.php');
 $page_content = include_template('auth.php', []);
 $layout_content = include_template('layout.php', [

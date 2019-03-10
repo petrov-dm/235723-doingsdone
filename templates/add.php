@@ -33,7 +33,7 @@
         <select class="form__input form__input--select <?= $classname ?>" name="project" id="project">
             <!--            Заполняем список проектов из БД-->
             <?php foreach ($projects as $key => $item): ?>
-                <option value="<?= esc($item['id']) ?>"><?= esc($item['name']) ?></option>
+                <option value="<?= esc(isset($item['id']) ?  $item['id'] : "") ?>"><?= esc(isset($item['name']) ?  $item['name'] : "") ?></option>
             <?php endforeach; ?>
         </select>
         <?php if (isset($dict['project']) && isset($errors['project'])): ?>
