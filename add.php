@@ -10,11 +10,7 @@ require_once('init.php');
 
 require_once('functions.php');
 
-// Получаем e-mail пользователя из формы. Используем функцию фильтрации esc().
-
-//$email_form = esc("ivan@mail.ru");
-
-// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. Значение переменной $email_form используется для поиска в таблице БД.
+// Обращаемся к таблице users для извлечения имени пользователя и его e-mail. 
 
 $user_data = getUsers($connect, $_SESSION['user']['email']);
 
@@ -81,10 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Получаем объект результата, проверяем успешность результатов запроса
 
                 $result = mysqli_query($connect, $sql);
-                if ($result == false) {
-                    $error = mysqli_error($connect);
-                    print ("Ошибка MySQL: " . $error);
-                }
+
+                checkResult($result, $connect);
 
 //  Считаем количество возвращенных записей, если 0, то id проекта нет в БД    
 
@@ -132,13 +126,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             //Ветка при отсутствии ошибок валидации
             //Если пользователь выбрал файл загружаем его в папку uploads
-            if (isset($_FILES['preview'])) {
+            if (isset($_FILES['preview']) && ($_FILES['preview']['name'] != "")) {
 
                 $file_name = $_FILES['preview']['name'];
                 $file_path = __DIR__;
-                if ($file_name != "") {
-                    $file_url = "uploads\\" . $file_name;
-                }
+                $file_url = "uploads\\" . $file_name;
                 move_uploaded_file($_FILES['preview']['tmp_name'], $file_path . '\\uploads\\' . $file_name);
             }
 
@@ -149,26 +141,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Формируем запрос на добавление данных. Для защиты от SQL-инъекций используем функцию mysqli_real_escape_string
 
-            $safe_user_id = mysqli_real_escape_string($connect, $user_data['id']);
-            //print("$safe_user_id <br>");
+            $safe_user_id = mysqli_real_escape_string($connect, isset($user_data['id']) ? $user_data['id'] : "");
 
             $safe_project_id = mysqli_real_escape_string($connect, isset($_POST['project']) ? $_POST['project'] : "");
-            //print("$safe_project_id <br>");
-
 
             $safe_done = mysqli_real_escape_string($connect, 0);
-            //print("$safe_done <br>");
 
             $safe_name = mysqli_real_escape_string($connect, isset($_POST['name']) ? $_POST['name'] : "");
-            //print("$safe_name <br>");
 
             $tmp = isset($file_url) ? $file_url : "";
             $safe_file = mysqli_real_escape_string($connect, $tmp);
-            //print("$safe_file <br>");
 
             $safe_date_planned = mysqli_real_escape_string($connect,
                 (isset($_POST['date']) && ($_POST['date'] != "")) ? date_Ymd($_POST['date']) : "");
-            //print(date_Ymd($_POST['date']));
 
             $sql = "INSERT INTO tasks SET user_id = '$safe_user_id', project_id = '$safe_project_id', done = '$safe_done', name = '$safe_name', file = '$safe_file', date_planned = '$safe_date_planned'";
 
@@ -181,28 +166,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $result = mysqli_query($connect, $sql);
 
-            if (!$result) {
-                $error = mysqli_error($connect);
-                print("Ошибка MySQL: " . $error);
-            }
+            checkResult($result, $connect);
 
-            // После успешной записи в БД загружаем шаблон основной страницы по умолчанию: список всех задач авторизованного пользователя
+            // После успешной записи в БД преходим на основную страницу
 
-            $page_content = include_template('index.php',
-                ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
-            $layout_content = include_template('layout.php', [
-                'content' => $page_content,
-                'projects' => $projects,
-                'user_name' => $user_data['name'],
-                'title' => 'Дела в порядке',
-                'tasks' => $tasks
-            ]);
-            print ($layout_content);
-            exit();
+            header('Location: index.php');
 
         }
     }
 }
+
+// Этот фрагмент выполняется при вызове сценария add.php, при нажатии кнопки "Добавить задачу" на layout 
 
 $page_content = include_template('add.php', ['projects' => $projects]);
 
