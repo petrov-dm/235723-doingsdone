@@ -12,11 +12,12 @@ require_once('functions.php');
 
 // Обращаемся к таблице users для извлечения имени пользователя и его e-mail. 
 
-$user_data = getUsers($connect, $_SESSION['user']['email']);
+$user_data = getUsers($connect, isset($_SESSION['user']['email']) ? $_SESSION['user']['email'] : "");
 
 // Обращаемся к таблице projects для получения списка проектов 
 
-$projects = getProjects($connect, $user_data['email']);
+$projects = getProjects($connect, isset($user_data['email']) ? $user_data['email'] : ""
+);
 
 // Считываем список задач пользователя
 
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Проверяем заполнение обязательных полей
         foreach ($required as $key) {
-            if (empty($_POST[$key])) {
+            if (empty(isset($_POST[$key]) ? $_POST[$key] : "")) {
                 $errors[$key] = 'Это поле необходимо заполнить';
             }
         }
@@ -70,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Таблица projects: формируем запрос на получение списка проектов по e-mail пользователя выбранного из таблицы users 
 
-                $safe_project = mysqli_real_escape_string($connect, $_POST['project']);
+                $safe_project = mysqli_real_escape_string($connect, isset($_POST['project']) ? $_POST['project'] : "");
 
                 $sql = "SELECT * FROM projects WHERE projects.id = $safe_project";
 
@@ -93,14 +94,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
 // Проверка формата даты ДД.ММ.ГГГГ
-        if ($_POST['date'] != "") {
+        if ((isset($_POST['date']) ? $_POST['date'] : ""
+            ) != "") {
             if (!is_valid_date(trim($_POST['date']))) {
                 $errors['date'] = 'Ошибка ввода даты';
             }
         }
 
 // Проверка: дата не должна быть прошедшей  
-        if ($_POST['date'] != "") {
+        if ((isset($_POST['date']) ? $_POST['date'] : ""
+            ) != "") {
             if (date_task_exec($_POST['date']) == 'overdue') {
                 $errors['date'] = 'Ошибка ввода даты';
             }
@@ -126,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             //Ветка при отсутствии ошибок валидации
             //Если пользователь выбрал файл загружаем его в папку uploads
-            if (isset($_FILES['preview']) && ($_FILES['preview']['name'] != "")) {
+            if (isset($_FILES['preview']) && ((isset($_FILES['preview']['name']) ? $_FILES['preview']['name'] : "") != "")) {
 
                 $file_name = $_FILES['preview']['name'];
                 $file_path = __DIR__;
@@ -153,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $safe_file = mysqli_real_escape_string($connect, $tmp);
 
             $safe_date_planned = mysqli_real_escape_string($connect,
-                (isset($_POST['date']) && ($_POST['date'] != "")) ? date_Ymd($_POST['date']) : "");
+                (isset($_POST['date']) && ((isset($_POST['date']) ? $_POST['date'] : "") != "")) ? date_Ymd($_POST['date']) : "");
 
             $sql = "INSERT INTO tasks SET user_id = '$safe_user_id', project_id = '$safe_project_id', done = '$safe_done', name = '$safe_name', file = '$safe_file', date_planned = '$safe_date_planned'";
 
