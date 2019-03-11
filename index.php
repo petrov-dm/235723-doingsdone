@@ -3,7 +3,7 @@ session_start();
 
 // Управление отображением выполненных задач
 
-$show_complete_tasks = $_SESSION['user']['show_complete_tasks'];
+$show_complete_tasks = isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : "";
 
 // Подключение к БД и создание массивов для работы с ней
 
@@ -28,11 +28,11 @@ if (!isset($_SESSION['user'])) {
 
 // Обращаемся к таблице users для извлечения имени пользователя и его e-mail.   
 
-    $user_data = getUsers($connect, $_SESSION['user']['email']);
+    $user_data = getUsers($connect, isset($_SESSION['user']['email']) ? $_SESSION['user']['email'] : "");
 
 // Обращаемся к таблице projects для получения списка проектов 
 
-    $projects = getProjects($connect, $user_data['email']);
+    $projects = getProjects($connect, isset($user_data['email']) ? $user_data['email'] : "");
 
 // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя
 
@@ -46,20 +46,21 @@ if (!isset($_SESSION['user'])) {
 
         // Управление отображением выполненных задач
 
-        $show_complete_tasks = $_SESSION['user']['show_complete_tasks'];
+        $show_complete_tasks = isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : "";
     }
 
 // Управление отображением выполненных задач
 
     if (isset($_GET['show_completed'])) {
-        if ($_SESSION['user']['show_complete_tasks'] == 0) {
+        if ((isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : "")
+            === 0) {
             $_SESSION['user']['show_complete_tasks'] = 1;
             $show_complete_tasks = 1;
         } else {
             $_SESSION['user']['show_complete_tasks'] = 0;
             $show_complete_tasks = 0;
         }
-        
+
     }
 
 // Инвертируем статус выполнения задачи. Это событие происходит при щелчке по чекбоксу задачи. Меняем значение done в БД на противоположное.    
@@ -89,7 +90,7 @@ if (!isset($_SESSION['user'])) {
             $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
             // Инвертируем статус задачи. Зписываем его в массив $_GET
-            $rows[0]['done'] == 1 ? $_GET['done'] = 0 : $_GET['done'] = 1;
+            (isset($rows[0]['done']) ? $rows[0]['done'] : "") == 1 ? $_GET['done'] = 0 : $_GET['done'] = 1;
 
             // Запрос на обновление поля done задачи
 
@@ -119,8 +120,8 @@ if (!isset($_SESSION['user'])) {
 
         $tmp_arr = [];
         foreach ($tasks as $key => $item) {
-            if (date_task_exec($item['date_planned']) == 'today') {
-                $tmp_arr[$key] = $tasks[$key];
+            if (date_task_exec(isset($item['date_planned']) ? $item['date_planned'] : "") == 'today') {
+                $tmp_arr[$key] = (isset($tasks[$key]) ? $tasks[$key] : "");
 
             }
         }
@@ -138,8 +139,8 @@ if (!isset($_SESSION['user'])) {
 
         $tmp_arr = [];
         foreach ($tasks as $key => $item) {
-            if (date_task_exec($item['date_planned']) == 'make') {
-                $tmp_arr[$key] = $tasks[$key];
+            if (date_task_exec(isset($item['date_planned']) ? $item['date_planned'] : "") == 'make') {
+                $tmp_arr[$key] = isset($tasks[$key]) ? $tasks[$key] : "";
 
             }
         }
@@ -157,7 +158,7 @@ if (!isset($_SESSION['user'])) {
 
         $tmp_arr = [];
         foreach ($tasks as $key => $item) {
-            if ( (date_task_exec($item['date_planned']) == 'overdue') && ($item['done'] == 0) ) {
+            if ((date_task_exec(isset($item['date_planned']) ? $item['date_planned'] : "") == 'overdue') && ((isset($item['done']) ? $item['done'] : 2) == 0)) {
                 $tmp_arr[$key] = $tasks[$key];
 
             }

@@ -17,8 +17,7 @@
 
 <div class="page-wrapper">
     <!--    убираем класс  container--with-sidebar для /guest.php     -->
-    <div
-        class="container <?php if ($_SERVER['SCRIPT_NAME'] != "/guest.php"): ?> container--with-sidebar <?php endif; ?>">
+    <div class="container <?php if ($_SERVER['SCRIPT_NAME'] != "/guest.php"): ?> container--with-sidebar <?php endif; ?>">
         <header class="main-header">
             <a href="/index.php">
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
@@ -101,8 +100,8 @@
             </main>
 
         </div>
-                <!-- end вывод для аутент. пользов. -->
-                <?php endif; ?>
+        <!-- end вывод для аутент. пользов. -->
+    <?php endif; ?>
 
     </div>
 </div>
