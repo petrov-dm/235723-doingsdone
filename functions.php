@@ -1,11 +1,7 @@
 <?php
 
 // Функция шаблонизации
-/**
- * @param $name
- * @param $data
- * @return false|string
- */
+
 function include_template($name, $data)
 {
     $name = 'templates/' . $name;
@@ -23,18 +19,14 @@ function include_template($name, $data)
 }
 
 // Функция подсчета задач
-/**
- * @param $t
- * @param $p
- * @return int
- */
+
 function count_tasks($t, $p)
 {
     $count = 0;
 
     foreach ($t as $key => $item) {
 
-        if ((int)(isset($item['project_id']) ? $item['project_id'] : "") == (int)$p) {
+        if ((int)$item['project_id'] == (int)$p) {
             $count++;
         }
     }
@@ -42,10 +34,7 @@ function count_tasks($t, $p)
 }
 
 // Функция фильтрации данных полученных из форм
-/**
- * @param $str
- * @return string
- */
+
 function esc($str)
 {
     $text = htmlspecialchars($str);
@@ -56,10 +45,7 @@ function esc($str)
 }
 
 // Функция проверки даты выпонения задачи
-/**
- * @param $d
- * @return string
- */
+
 function date_task_exec($d)
 {
     // значение по умолчанию
@@ -106,10 +92,7 @@ function date_task_exec($d)
 }
 
 // Функция преобразования даты в формат d-m-Y. Используется при чтении дат из БД
-/**
- * @param $date
- * @return false|string
- */
+
 function date_dmY($date)
 {
     if (isset($date)) {
@@ -118,10 +101,7 @@ function date_dmY($date)
 }
 
 // Функция преобразования даты в формат Y-m-d. Используется при записи дат в БД
-/**
- * @param $date
- * @return bool|false|string
- */
+
 function date_Ymd($date)
 {
     if (isset($date) && ($date != "")) {
@@ -131,10 +111,7 @@ function date_Ymd($date)
 }
 
 // Функция проверки корректности формата даты ДД.ММ.ГГГГ
-/**
- * @param $date
- * @return bool
- */
+
 function is_valid_date($date)
 {
     return preg_match('/^(\\d{2})\\.(\\d{2})\\.(\\d{4})$/', $date, $m)
@@ -144,10 +121,7 @@ function is_valid_date($date)
 // Функции работы с БД
 
 // Функция проверки результата выполнения запроса к БД
-/**
- * @param $result
- * @param $connect
- */
+
 function checkResult($result, $connect)
 {
     if (!$result) {
@@ -157,11 +131,7 @@ function checkResult($result, $connect)
 }
 
 // Подключение к таблице users. Параметр $email - адрес эл. почты пользователя, полученный из формы
-/**
- * @param $con
- * @param $email
- * @return array
- */
+
 function getUsers($con, $email)
 {
     // Проверяем результат подключения
@@ -196,22 +166,13 @@ function getUsers($con, $email)
         if (empty($rows)) {
             return $tmp;
         } else {
-            return isset($rows[0]) ? $rows[0] : "";
+            return $rows[0];
         }
     }
 }
 
-/**
- * @param $con
- * @param $email
- * @return array|null
- */
 // Подключение к таблице proejcts. Параметр $email - эл. почта пользователя, полученная из таблицы users БД
-/**
- * @param $con
- * @param $email
- * @return array|null
- */
+
 function getProjects($con, $email)
 {
 
@@ -249,11 +210,7 @@ function getProjects($con, $email)
 }
 
 // Подключение к таблице tasks. Выборка задач по всем проектам пользователя с идентификатором $user_id 
-/**
- * @param $con
- * @param $user_id
- * @return array|null
- */
+
 function getTasks($con, $user_id)
 {
 
@@ -267,7 +224,7 @@ function getTasks($con, $user_id)
 
         // Запрос для вывода задач по всем проектам пользователя
 
-        $user_id['id'] = mysqli_real_escape_string($con, isset($user_id['id']) ? $user_id['id'] : "");
+        $user_id['id'] = mysqli_real_escape_string($con, $user_id['id']);
 
         $sql = "SELECT * FROM tasks WHERE user_id = " . $user_id['id'] . ";";
 
@@ -288,11 +245,7 @@ function getTasks($con, $user_id)
 }
 
 // Выборка задач по выбранному проекту
-/**
- * @param $con
- * @param $proj_id
- * @return array|null
- */
+
 function getTasksByProjectID($con, $proj_id)
 {
 
@@ -331,5 +284,47 @@ function getTasksByProjectID($con, $proj_id)
         return $rows;
     }
 }
+
+// Функция для отображения задач выбранного проекта на главной странице  
+/**
+ * @param $tasks
+ * @param $page_content
+ * @param $show_complete_tasks
+ */
+function contentProjectId(&$tasks, &$page_content, $show_complete_tasks)
+{
+    $tmp = [];
+    $tmp = $tasks;
+    $tasks = isset($_SESSION['user']['tasksProjectID']) ? $_SESSION['user']['tasksProjectID'] : $tasks;
+    $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+    $tasks = $tmp;
+}
+
+
+// Функция для отображения результатов фильтрации задач: "Все задачи", "Повестка дня" и др.
+/**
+ * @param $tasks
+ * @param $tmp_arr
+ * @param $show_complete_tasks
+ * @param $page_content
+ */
+function showFilter(&$tasks, &$tmp_arr, &$show_complete_tasks, &$page_content)
+{
+
+    $tmp = $tasks;
+
+    unset($tasks);
+
+    $tasks = $tmp_arr;
+
+    // Управление отображением выполненных задач. Считываем текущий режим отображения из сессии.
+
+    $show_complete_tasks = isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : 0;
+
+    $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+
+    $tasks = $tmp;
+}
+
 
 ?>

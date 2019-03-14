@@ -1,6 +1,8 @@
 <?php
 
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Подключение к БД и создание массивов для работы с ней
 
@@ -11,8 +13,8 @@ require_once('init.php');
 require_once('functions.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-
+    
+    
     // Валидация введенных данных
     // Массив с введенными значениями полей (копируем из $_POST)
 
@@ -29,31 +31,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Проверяем заполнение обязательных полей
 
     foreach ($required as $key) {
-        if (empty(isset($_POST[$key]) ? $_POST[$key] : ""
-        )) {
-            $errors[$key] = $errors[$key] . 'Это поле необходимо заполнить. ';
+        if (empty($_POST[$key])) {
+            $errors[$key] = 'Это поле необходимо заполнить. ';
         }
     }
 
     // Проверяем валидность адреса e-mail 
 
-    if ((!filter_var(isset($_POST['email']) ? $_POST['email'] : "",
-            FILTER_VALIDATE_EMAIL)) && !empty(isset($_POST['email']) ? $_POST['email'] : "")) {
-        $errors['email'] = $errors['email'] . 'E-mail указан неверно. ';
+    if ((!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) && !empty($_POST['email'])) {
+        $errors['email'] = 'E-mail указан неверно. ';
     }
 
     // Если адрес e-mail не пустой и прошел валидацию проверяем его существование в таблице users БД
-
-    if (empty(isset($errors['email']) ? $errors['email'] : "")) {
-
+        
+    if (empty($errors['email'])) {
+    
         // Готовим адрес e-mail для SQL-запроса
-
+        
         $safe_email = mysqli_real_escape_string($connect, isset($_POST['email']) ? $_POST['email'] : "");
-
+        
         // Вызываем функцию getUsers. Если она возвращает пустой массив - то данного адреса e-mail в базе нет   
-        if (!empty(getUsers($connect, $safe_email))) {
-            $errors['email'] = $errors['email'] . 'Такой E-mail уже зарегистрирован. ';
-        }
+        if ( !empty(getUsers($connect, $safe_email)) ){
+            $errors['email'] = 'Такой E-mail уже зарегистрирован. ';
+        }      
     }
 
     // Проверяем результаты валидации. 
@@ -100,16 +100,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Если есть ошибки валидации вызываем сценарий register.php и выводим их под полями
 
         $page_content = include_template('register.php', ['user_value' => $user_value, 'errors' => $errors]);
-        $layout_content = include_template('layout.php', ['content' => $page_content]);
+        $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
         print ($layout_content);
         exit();
     }
-}
+    }
 
 // Этот фрагмент код выполняется при перенаправлении со сценария index.php, когда пользователь не аутентифицирован и пытается зайти на сайт
 
 $page_content = include_template('register.php', []);
-$layout_content = include_template('layout.php', ['content' => $page_content]);
+$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print ($layout_content);
 
 ?>

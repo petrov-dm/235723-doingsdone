@@ -1,6 +1,18 @@
 <?php
 
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Неаутентифицированного пользователя при прямой ссылке перенаправляем на гостевую страницу
+
+if (!isset($_SESSION['user'])){
+   header('Location: guest.php');
+}
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Пользователь аутентифицирован. Считываем из БД информацию о нем
 
@@ -16,12 +28,12 @@ if (isset($_SESSION['user'])) {
 
     // Обращаемся к таблице users для извлечения имени пользователя и его e-mail. 
 
-    $user_data = getUsers($connect, isset($_SESSION['user']['email']) ? $_SESSION['user']['email'] : "");
+    $user_data = getUsers($connect, $_SESSION['user']['email']);
 
     // Обращаемся к таблице projects для получения списка проектов 
 
-    $projects = getProjects($connect, isset($user_data['email']) ? $user_data['email'] : "");
-
+    $projects = getProjects($connect, $user_data['email']);
+  
     // Считываем список задач пользователя
 
     $tasks = getTasks($connect, $user_data);
@@ -48,7 +60,7 @@ if (isset($_SESSION['user']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
     // Проверяем заполнение обязательных полей
 
     foreach ($required as $key) {
-        if (empty(isset($_POST[$key]) ? $_POST[$key] : "")) {
+        if (empty($_POST[$key])) {
             $errors[$key] = 'Это поле необходимо заполнить';
         }
     }
@@ -56,13 +68,13 @@ if (isset($_SESSION['user']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
     // Если поле заполнено, проверяем существование названия проекта в базе
 
     if (empty($errors['name'])) {
-
+    
         // Поскольку пользователь аутентифицирован - получен список проектов в массиве $projects. Проверяем существование в базе вводимого названия проекта
-        foreach ($projects as $key => $item) {
-            if (trim(isset($_POST['name']) ? $_POST['name'] : "") == (isset($item['name']) ? $item['name'] : "-")) {
+        foreach ( $projects as $key => $item ){
+            if ( trim($_POST['name']) == $item['name'] ){
                 $errors['name'] = $errors['name'] . 'Такой проект уже существует. ';
-            }
-        }
+            }     
+        }       
     }
 
     // Проверяем результаты валидации. 

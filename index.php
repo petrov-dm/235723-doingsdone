@@ -1,17 +1,8 @@
 <?php
-session_start();
 
-// Управление отображением выполненных задач
-
-$show_complete_tasks = isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : "";
-
-// Подключение к БД и создание массивов для работы с ней
-
-require_once('init.php');
-
-// Подключаем функции
-
-require_once('functions.php');
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Проверяем аутентификацию пользователя 
 // $_SESSION['user']  - пользователь аутентифицирован, если эта сессия существует
@@ -26,41 +17,86 @@ if (!isset($_SESSION['user'])) {
 
 // ========== ЭТО ВЫПОЛНЯЕТСЯ ПОСЛЕ АУТЕНТИФИКАЦИИ ======
 
+// При щелчке по логотипу сбрасываем в сессии массив задач выбранного проекта. После этого отображаются все задачи.
+
+    if (isset($_GET['show_all'])) {
+        if (isset($_SESSION['user']['tasksProjectID'])) {
+            unset($_SESSION['user']['tasksProjectID']);
+        }
+
+    }
+
+// Управление отображением выполненных задач по умолчанию
+
+    $show_complete_tasks = isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : 0;
+
+// Управление отображением выполненных задач кнопкой chekbox - для всех проектов
+
+    if (isset($_GET['show_completed'])) {
+        if ($_SESSION['user']['show_complete_tasks'] == 0) {
+            $_SESSION['user']['show_complete_tasks'] = 1;
+            $show_complete_tasks = $_SESSION['user']['show_complete_tasks'];
+        } else {
+            $_SESSION['user']['show_complete_tasks'] = 0;
+            $show_complete_tasks = $_SESSION['user']['show_complete_tasks'];
+        }
+    }
+
+// Подключение к БД и создание массивов для работы с ней
+
+    require_once('init.php');
+
+// Подключаем функции
+
+    require_once('functions.php');
+
 // Обращаемся к таблице users для извлечения имени пользователя и его e-mail.   
 
-    $user_data = getUsers($connect, isset($_SESSION['user']['email']) ? $_SESSION['user']['email'] : "");
+    $user_data = getUsers($connect, $_SESSION['user']['email']);
 
 // Обращаемся к таблице projects для получения списка проектов 
 
-    $projects = getProjects($connect, isset($user_data['email']) ? $user_data['email'] : "");
+    $projects = getProjects($connect, $user_data['email']);
 
 // Обращаемся к таблице tasks для получения списка задач всех проектов текущего пользователя
 
     $tasks = getTasks($connect, $user_data);
 
-// Вывод задач по выбранному проекту текущего пользователя 
+// Содержимое главной страницы: по умолчанию отображаем все задачи всех проектов 
+
+    $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+
+// Вывод задач по выбранному проекту текущего пользователя - по щелчку названия проекта
 
     if (isset($_GET['project_id'])) {
+
         $projec_id = (int)$_GET['project_id'];
-        $tasks = getTasksByProjectID($connect, $projec_id);
+
+        // Массив в сессии для хранения задач выбранного проекта
+
+        $_SESSION['user']['tasksProjectID'] = [];
+        $_SESSION['user']['tasksProjectID'] = getTasksByProjectID($connect, $projec_id);
+
+        // Управление отображением выполненных задач. Считываем текущий режим отображения из сессии.
+
+        $show_complete_tasks = $_SESSION['user']['show_complete_tasks'];
+
+        //  Содержимое главной страницы: отображаем задачи выбранного проекта
+
+        contentProjectId($tasks, $page_content, $show_complete_tasks);
+    }
+
+// Управление отображением выполненных задач кнопкой chekbox - для текущего выбранного проекта     
+
+    if (isset($_GET['show_completed']) && isset($_SESSION['user']['tasksProjectID'])) {
 
         // Управление отображением выполненных задач
 
-        $show_complete_tasks = isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : "";
-    }
+        $show_complete_tasks = $_SESSION['user']['show_complete_tasks'];
 
-// Управление отображением выполненных задач
+        //  Содержимое главной страницы: отображаем задачи выбранного проекта
 
-    if (isset($_GET['show_completed'])) {
-        if ((isset($_SESSION['user']['show_complete_tasks']) ? $_SESSION['user']['show_complete_tasks'] : "")
-            === 0) {
-            $_SESSION['user']['show_complete_tasks'] = 1;
-            $show_complete_tasks = 1;
-        } else {
-            $_SESSION['user']['show_complete_tasks'] = 0;
-            $show_complete_tasks = 0;
-        }
-
+        contentProjectId($tasks, $page_content, $show_complete_tasks);
     }
 
 // Инвертируем статус выполнения задачи. Это событие происходит при щелчке по чекбоксу задачи. Меняем значение done в БД на противоположное.    
@@ -90,7 +126,8 @@ if (!isset($_SESSION['user'])) {
             $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
             // Инвертируем статус задачи. Зписываем его в массив $_GET
-            (isset($rows[0]['done']) ? $rows[0]['done'] : "") == 1 ? $_GET['done'] = 0 : $_GET['done'] = 1;
+            $rows[0]['done'] == 1 ? $_GET['done'] = 0 : $_GET['done'] = 1;
+
 
             // Запрос на обновление поля done задачи
 
@@ -106,12 +143,45 @@ if (!isset($_SESSION['user'])) {
 
             checkResult($result, $connect);
 
-            header('Location: index.php');
+            // Если выбран проект вызываем сценарий index.php?project_id= , чтобы отобразить только его задачи. В противном случае выводим все таски.
+
+            isset($_SESSION['user']['tasksProjectID']) ? header('Location: index.php?project_id=' . $_SESSION['user']['tasksProjectID'][0]['project_id']) : header('Location: index.php');
 
         }
     }
 
-// Блок фильтрации задач   
+// Блок фильтрации задач  
+
+    if (isset($_GET['tasks_switch']) && $_GET['tasks_switch'] == 'all') {
+
+        // Отображаем все задачи 
+        // Определяем задачи  и помещаем их во временный массив
+
+        $tmp_arr = [];
+
+        // Проверка существования массива задач по выбранному проекту
+
+        $tmp = isset($_SESSION['user']['tasksProjectID']) ? true : false;
+
+        if (!$tmp) {
+
+            // Если нет выбранного проекта выводим задачи всех проектов 
+
+            $tmp_arr = $tasks;
+
+        } else {
+
+            // Если выбран проект, то выводим его задачи    
+
+            $tmp_arr = $_SESSION['user']['tasksProjectID'];
+
+        }
+
+        // Выводим список задач на экран
+
+        showFilter($tasks, $tmp_arr, $show_complete_tasks, $page_content);
+
+    }
 
     if (isset($_GET['tasks_switch']) && $_GET['tasks_switch'] == 'today') {
 
@@ -119,17 +189,31 @@ if (!isset($_SESSION['user'])) {
         // С помощью функции date_task_exec определяем задачи на сегодня и помещаем их во временный массив
 
         $tmp_arr = [];
-        foreach ($tasks as $key => $item) {
-            if (date_task_exec(isset($item['date_planned']) ? $item['date_planned'] : "") == 'today') {
-                $tmp_arr[$key] = (isset($tasks[$key]) ? $tasks[$key] : "");
 
+        // Проверка существования массива задач по выбранному проекту
+
+        $tmp = isset($_SESSION['user']['tasksProjectID']) ? true : false;
+
+        if (!$tmp) {
+
+            // Если нет выбранного проекта выводим задачи всех проектов
+
+            foreach ($tasks as $key => $item) {
+                (date_task_exec($item['date_planned']) == 'today') ? $tmp_arr[$key] = $tasks[$key] : "";
             }
+        } else {
+
+            // Если выбран проект, то выводим его задачи
+
+            foreach ($_SESSION['user']['tasksProjectID'] as $key => $item) {
+                (date_task_exec($item['date_planned']) == 'today') ? $tmp_arr[$key] = $_SESSION['user']['tasksProjectID'][$key] : "";
+            }
+
         }
 
-        // В массиве $tasks оставляем только задачи на сегдня 
+        // В массиве $tasks оставляем только задачи на сегодня 
 
-        unset($tasks);
-        $tasks = $tmp_arr;
+        showFilter($tasks, $tmp_arr, $show_complete_tasks, $page_content);
     }
 
     if (isset($_GET['tasks_switch']) && $_GET['tasks_switch'] == 'tomorrow') {
@@ -138,17 +222,31 @@ if (!isset($_SESSION['user'])) {
         // С помощью функции date_task_exec определяем задачи на завтра и помещаем их во временный массив
 
         $tmp_arr = [];
-        foreach ($tasks as $key => $item) {
-            if (date_task_exec(isset($item['date_planned']) ? $item['date_planned'] : "") == 'make') {
-                $tmp_arr[$key] = isset($tasks[$key]) ? $tasks[$key] : "";
 
+        // Проверка существования массива задач по выбранному проекту
+
+        $tmp = isset($_SESSION['user']['tasksProjectID']) ? true : false;
+
+        if (!$tmp) {
+
+            // Если нет выбранного проекта выводим задачи всех проектов
+
+            foreach ($tasks as $key => $item) {
+                (date_task_exec($item['date_planned']) == 'make') ? $tmp_arr[$key] = $tasks[$key] : "";
             }
+        } else {
+
+            // Если выбран проект, то выводим его задачи
+
+            foreach ($_SESSION['user']['tasksProjectID'] as $key => $item) {
+                (date_task_exec($item['date_planned']) == 'make') ? $tmp_arr[$key] = $_SESSION['user']['tasksProjectID'][$key] : "";
+            }
+
         }
 
         // В массиве $tasks оставляем только задачи на завтра 
 
-        unset($tasks);
-        $tasks = $tmp_arr;
+        showFilter($tasks, $tmp_arr, $show_complete_tasks, $page_content);
     }
 
     if (isset($_GET['tasks_switch']) && $_GET['tasks_switch'] == 'overdue') {
@@ -157,24 +255,36 @@ if (!isset($_SESSION['user'])) {
         // С помощью функции date_task_exec определяем просроченные задачи и помещаем их во временный массив
 
         $tmp_arr = [];
-        foreach ($tasks as $key => $item) {
-            if ((date_task_exec(isset($item['date_planned']) ? $item['date_planned'] : "") == 'overdue') && ((isset($item['done']) ? $item['done'] : 2) == 0)) {
-                $tmp_arr[$key] = $tasks[$key];
 
+        // Проверка существования массива задач по выбранному проекту
+
+        $tmp = isset($_SESSION['user']['tasksProjectID']) ? true : false;
+
+        if (!$tmp) {
+
+            // Если нет выбранного проекта выводим задачи всех проектов
+
+            foreach ($tasks as $key => $item) {
+                ((date_task_exec($item['date_planned']) == 'overdue') && ($item['done'] == 0)) ? $tmp_arr[$key] = $tasks[$key] : "";
             }
+        } else {
+
+            // Если выбран проект, то выводим его задачи
+
+            foreach ($_SESSION['user']['tasksProjectID'] as $key => $item) {
+
+                ((date_task_exec($item['date_planned']) == 'overdue') && ($item['done'] == 0)) ? $tmp_arr[$key] = $_SESSION['user']['tasksProjectID'][$key] : "";
+            }
+
         }
 
-        // В массиве $tasks оставляем только задачи на сегдня 
+        // В массиве $tasks оставляем только просроченные задачи  
 
-        unset($tasks);
-        $tasks = $tmp_arr;
+        showFilter($tasks, $tmp_arr, $show_complete_tasks, $page_content);
+
     }
 
 // Шаблоны
-
-//Содержимое главной страницы 
-
-    $page_content = include_template('index.php', ['tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
 
 // Содержимое главной страницы при нажатии кнопок "Добавить задачу" шаблона templates/layout.php
 

@@ -25,16 +25,16 @@
 <table class="tasks">
     <!--            Вывод списка задач-->
     <?php foreach ($tasks as $key => $item): ?>
-        <?php if (!(((isset($item['done']) ? $item['done'] : null) == 1) && ($show_complete_tasks == 0))): ?>
+        <?php if (!(( (isset($item['done']) ? $item['done'] : null) == 1) && ($show_complete_tasks == 0))): ?>
             <!--  Оповещение о необходимости выполнить задачу <= 24ч.  -->
-            <tr class="tasks__item task <?php if ((isset($item['done']) ? $item['done'] : null) == 1): ?> task--completed <?php endif; ?> <?php if (date_task_exec(date_dmY(isset($item['date_planned']) ? $item['date_planned'] : null)) == 'make'): ?> task--important <?php endif; ?>">
+            <tr class="tasks__item task <?php if ( (isset($item['done']) ? $item['done'] : null) == 1): ?> task--completed <?php endif; ?> <?php if (date_task_exec(date_dmY(isset($item['date_planned']) ? $item['date_planned'] : null)) == 'make'): ?> task--important <?php endif; ?>">
                 <td class="task__select">
                     <label class="checkbox task__checkbox">
                         <input class="checkbox__input visually-hidden task__checkbox" type="checkbox"
                                value="<?php isset($item['id']) ? print(esc($item['id'])) : print(''); ?>">
                         <!--            Отмечаем просроченные задачи    -->
                         <span
-                                class="checkbox__text" <?php if (date_task_exec(date_dmY(isset($item['date_planned']) ? $item['date_planned'] : "")) == 'overdue' or date_task_exec(date_dmY(isset($item['date_planned']) ? $item['date_planned'] : "")) == 'today'): ?> style="color:red;"
+                            class="checkbox__text" <?php if (date_task_exec(date_dmY(isset($item['date_planned']) ? $item['date_planned'] : "")) == 'overdue' or date_task_exec(date_dmY(isset($item['date_planned']) ? $item['date_planned'] : "")) == 'today'): ?> style="color:red;"
                         <?php endif; ?>>
                     <!-- Фильтрация названия задачи-->
                     <?= esc(isset($item['name']) ? $item['name'] : "") ?>
@@ -43,7 +43,7 @@
                 </td>
 
                 <td class="task__file">
-                    <a class="download-link" href="<?php if (isset($item['file'])) {
+                    <a class="<?php if (isset($item['file'])) { !empty($item['file']) ? print("download-link") : print(""); } ?>" href="<?php if (isset($item['file'])) {
                         print(esc($item['file']));
                     } ?>"><?php if (isset($item['file'])) {
                             print(esc($item['file']));
